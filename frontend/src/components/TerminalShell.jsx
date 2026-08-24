@@ -112,7 +112,7 @@ export const TerminalShell = ({ title, icon: TitleIcon = Trophy, children }) => 
       </header>
 
       {/* Body */}
-      <div className="flex-1 flex min-h-0">
+      <div className="flex-1 flex min-h-0 overflow-hidden">
         <aside data-testid="shell-side-rail"
                className="hidden md:flex w-[64px] shrink-0 flex-col items-center gap-1 border-r border-white/[0.07] bg-[#050f0a]/95 backdrop-blur-xl py-3">
           {SIDE_ITEMS.map(([Icon, label, path]) => {
@@ -135,7 +135,7 @@ export const TerminalShell = ({ title, icon: TitleIcon = Trophy, children }) => 
           </button>
         </aside>
 
-        <main className="flex-1 min-w-0 overflow-y-auto" data-testid="shell-main">
+        <main className="flex-1 min-w-0 min-h-0 overflow-y-auto" data-testid="shell-main">
           {children}
         </main>
       </div>
