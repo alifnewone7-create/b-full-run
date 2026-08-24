@@ -2,13 +2,13 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
-  ArrowLeft, ArrowRight, CheckCircle, Atom, Crown, SketchLogo, Copy,
-  CircleNotch, ShieldCheck, X, CurrencyCircleDollar, SealCheck, Warning,
+  ArrowRight, CheckCircle, Atom, Crown, SketchLogo, Copy,
+  CircleNotch, ShieldCheck, X, CurrencyCircleDollar, SealCheck, Warning, Trophy,
 } from '@phosphor-icons/react';
 import { API_BASE as API } from '../lib/apiBase';
 import { isLoggedIn } from '../lib/auth';
 import { useToast } from '../hooks/use-toast';
-import SideRail from '../components/SideRail';
+import TerminalShell from '../components/TerminalShell';
 
 const ICONS = { basic: Atom, standard: Crown, premium: SketchLogo };
 const RULE_ROWS = [
@@ -186,29 +186,16 @@ export default function ChallengesPage() {
   }, [load, navigate]);
 
   return (
-    <div className="min-h-screen bg-[#04120c] text-white flex"
-         style={{ backgroundImage: 'radial-gradient(1000px 560px at 12% -12%, rgba(20,184,119,0.16), transparent 62%), radial-gradient(900px 480px at 95% 8%, rgba(212,175,55,0.08), transparent 60%)' }}
-         data-testid="challenges-page">
-      <SideRail />
-
-      <div className="flex-1 min-w-0 flex flex-col">
-      <header className="sticky top-0 z-40 border-b border-white/8 bg-[#04120c]/85 backdrop-blur-xl">
-        <div className="mx-auto max-w-6xl px-4 sm:px-6 h-[64px] flex items-center justify-between">
-          <button onClick={() => navigate('/demo-trade')} data-testid="challenges-back-btn"
-                  className="md:hidden h-10 px-3.5 rounded-xl border border-white/12 bg-white/[0.04] text-[13px] font-semibold text-white/75 hover:bg-white/[0.1] transition-colors inline-flex items-center gap-2">
-            <ArrowLeft size={16} weight="bold" /> Terminal
-          </button>
-          <div className="hidden md:block text-[13px] font-bold tracking-[0.2em] uppercase text-white/45">Funding Plans</div>
-          <div className="text-[13px] font-bold tracking-[0.2em] uppercase text-[#14B877]">Challenges</div>
-        </div>
-      </header>
-
-      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-12 sm:py-16">
+    <TerminalShell title="Challenges" icon={Trophy}>
+      <div className="min-h-full"
+           style={{ backgroundImage: 'radial-gradient(1000px 560px at 12% -12%, rgba(20,184,119,0.16), transparent 62%), radial-gradient(900px 480px at 95% 8%, rgba(212,175,55,0.08), transparent 60%)' }}
+           data-testid="challenges-page">
+      <main className="mx-auto max-w-6xl px-4 sm:px-6 py-10 sm:py-12">
         <div className="max-w-2xl">
-          <h1 className="text-[32px] sm:text-[42px] font-extrabold leading-[1.08]" style={{ fontFamily: 'Manrope, sans-serif' }}>
+          <h1 className="text-[28px] sm:text-[38px] font-extrabold leading-[1.08]" style={{ fontFamily: 'Manrope, sans-serif' }}>
             Choose your <span className="text-[#14B877]">funding level</span>
           </h1>
-          <p className="mt-4 text-[15px] text-white/50 leading-relaxed">
+          <p className="mt-3 text-[14.5px] text-white/50 leading-relaxed">
             One-time fee, no subscription. Pass the rules and we deposit real balance into a live Quotex account for you.
           </p>
         </div>
@@ -220,7 +207,7 @@ export default function ChallengesPage() {
         )}
 
         {!busy && data && (
-          <div className="mt-12 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
             {data.plans.map((p) => {
               const Icon = ICONS[p.key] || Atom;
               return (
@@ -305,6 +292,6 @@ export default function ChallengesPage() {
           onDone={() => { setBuying(null); load(); }}
         />
       )}
-    </div>
+    </TerminalShell>
   );
 }
