@@ -8,6 +8,7 @@ import {
 import { API_BASE as API } from '../lib/apiBase';
 import { isLoggedIn } from '../lib/auth';
 import { useToast } from '../hooks/use-toast';
+import SideRail from '../components/SideRail';
 
 const ICONS = { basic: Atom, standard: Crown, premium: SketchLogo };
 const RULE_ROWS = [
@@ -185,15 +186,19 @@ export default function ChallengesPage() {
   }, [load, navigate]);
 
   return (
-    <div className="min-h-screen bg-[#04120c] text-white"
+    <div className="min-h-screen bg-[#04120c] text-white flex"
          style={{ backgroundImage: 'radial-gradient(1000px 560px at 12% -12%, rgba(20,184,119,0.16), transparent 62%), radial-gradient(900px 480px at 95% 8%, rgba(212,175,55,0.08), transparent 60%)' }}
          data-testid="challenges-page">
+      <SideRail />
+
+      <div className="flex-1 min-w-0 flex flex-col">
       <header className="sticky top-0 z-40 border-b border-white/8 bg-[#04120c]/85 backdrop-blur-xl">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 h-[64px] flex items-center justify-between">
           <button onClick={() => navigate('/demo-trade')} data-testid="challenges-back-btn"
-                  className="h-10 px-3.5 rounded-xl border border-white/12 bg-white/[0.04] text-[13px] font-semibold text-white/75 hover:bg-white/[0.1] transition-colors inline-flex items-center gap-2">
+                  className="md:hidden h-10 px-3.5 rounded-xl border border-white/12 bg-white/[0.04] text-[13px] font-semibold text-white/75 hover:bg-white/[0.1] transition-colors inline-flex items-center gap-2">
             <ArrowLeft size={16} weight="bold" /> Terminal
           </button>
+          <div className="hidden md:block text-[13px] font-bold tracking-[0.2em] uppercase text-white/45">Funding Plans</div>
           <div className="text-[13px] font-bold tracking-[0.2em] uppercase text-[#14B877]">Challenges</div>
         </div>
       </header>
@@ -290,6 +295,7 @@ export default function ChallengesPage() {
           </div>
         )}
       </main>
+      </div>
 
       {buying && data && (
         <PurchaseOverlay
