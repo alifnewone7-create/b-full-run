@@ -122,7 +122,6 @@ export const TerminalShell = ({ title, icon: TitleIcon = Trophy, children }) => 
                       data-testid={`side-${label.toLowerCase()}`}
                       className={`relative w-14 py-2 flex flex-col items-center gap-1 rounded-xl transition-colors ${
                         on ? 'text-[#14b877] bg-[#14b877]/10' : 'text-white/40 hover:text-white hover:bg-white/[0.05]'}`}>
-                {on && <span className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-[3px] rounded-r-full bg-[#14b877]" />}
                 <Icon size={20} weight="duotone" />
                 <span className="text-[9px] font-semibold whitespace-nowrap">{label}</span>
               </button>

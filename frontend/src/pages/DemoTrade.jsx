@@ -573,7 +573,6 @@ export default function DemoTrade() {
             <button key={label} data-testid={`side-${label.toLowerCase()}`}
                     onClick={() => path && navigate(path)}
                     className={`relative w-14 py-2 flex flex-col items-center gap-1 rounded-xl transition-colors ${i === 0 ? 'text-[#14b877] bg-[#14b877]/10' : 'text-white/40 hover:text-white hover:bg-white/[0.05]'}`}>
-              {i === 0 && <span className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-[3px] rounded-r-full bg-[#14b877]" />}
               <Icon size={20} weight="duotone" />
               <span className="text-[9px] font-semibold whitespace-nowrap">{label}</span>
             </button>
