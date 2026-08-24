@@ -20,7 +20,7 @@ const unpackr = new Unpackr({ mapsAsObjects: true });
 const DEFAULT_TABS = ['EURUSD_OTC', 'GBPUSD_OTC', 'USDJPY_OTC', 'EURAUD_OTC'];
 
 const SIDE_ITEMS = [
-  [ChartPieSlice, 'Portfolio', '/dashboard'],
+  [ChartLineUp, 'Trade', '/demo-trade'],
   [Trophy, 'Challenges', '/challenges'],
   [UserIcon, 'Profile', '/profile'],
   [Question, 'Help', null],
