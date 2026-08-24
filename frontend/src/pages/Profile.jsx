@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ArrowLeft, User as UserIcon, FloppyDisk, CircleNotch, Pencil, SealCheck, Warning } from '@phosphor-icons/react';
+import { User as UserIcon, FloppyDisk, CircleNotch, Pencil, SealCheck, Warning } from '@phosphor-icons/react';
 import { useToast } from '../hooks/use-toast';
 import CountrySelect from '../components/CountrySelect';
-import BrandLogo from '../components/BrandLogo';
 import TwoFASection from '../components/TwoFASection';
+import TerminalShell from '../components/TerminalShell';
 
 import { API_BASE as API } from '../lib/apiBase';
 
@@ -93,19 +93,10 @@ export default function Profile() {
   const initial = (user.nickname || user.full_name || user.email || 'B')[user.nickname ? 1 : 0]?.toUpperCase() || 'B';
 
   return (
-    <div className="min-h-screen text-white bg-[#040D09]"
-         style={{ background: 'radial-gradient(1200px 700px at 50% -10%, rgba(20,184,119,0.10), transparent 60%), linear-gradient(180deg, #04100b 0%, #030d09 100%)' }}
-         data-testid="profile-page">
-      {/* Header */}
-      <header className="flex items-center gap-3 px-4 sm:px-8 h-14 border-b border-white/10 bg-[#06120d]/60 backdrop-blur">
-        <Link to="/" data-testid="profile-logo"><BrandLogo className="h-7 w-auto" /></Link>
-        <div className="flex-1" />
-        <button onClick={() => navigate('/demo-trade')} data-testid="profile-back-trade"
-                className="inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 border border-white/10 hover:bg-white/[0.06] transition-colors text-[12px] font-semibold">
-          <ArrowLeft size={14} weight="bold" /> Back to trading
-        </button>
-      </header>
-
+    <TerminalShell title="Profile" icon={UserIcon}>
+      <div className="min-h-full text-white"
+           style={{ background: 'radial-gradient(1200px 700px at 50% -10%, rgba(20,184,119,0.10), transparent 60%), linear-gradient(180deg, #04100b 0%, #030d09 100%)' }}
+           data-testid="profile-page">
       <main className="max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
         {/* Identity card */}
         <section className="rounded-2xl border border-white/10 bg-white/[0.03] p-5 sm:p-6 mb-5">
@@ -229,6 +220,7 @@ export default function Profile() {
         {/* Security */}
         <TwoFASection user={user} onUpdate={setUser} />
       </main>
-    </div>
+      </div>
+    </TerminalShell>
   );
 }
