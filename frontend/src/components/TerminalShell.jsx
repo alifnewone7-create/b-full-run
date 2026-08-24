@@ -117,13 +117,12 @@ export const TerminalShell = ({ title, icon: TitleIcon = Trophy, children }) => 
                className="hidden md:flex w-[64px] shrink-0 flex-col items-center gap-1 border-r border-white/[0.07] bg-[#050f0a]/95 backdrop-blur-xl py-3">
           {SIDE_ITEMS.map(([Icon, label, path]) => {
             const on = path === pathname;
-            const isTrade = label === 'Trade';
             return (
               <button key={label} onClick={() => path && navigate(path)} title={label}
                       data-testid={`side-${label.toLowerCase()}`}
                       className={`relative w-14 py-2 flex flex-col items-center gap-1 rounded-xl transition-colors ${
                         on ? 'text-[#14b877] bg-[#14b877]/10' : 'text-white/40 hover:text-white hover:bg-white/[0.05]'}`}>
-                <Icon size={20} weight="fill" className={!on && isTrade ? 'text-[#14b877]' : undefined} />
+                <Icon size={20} weight="fill" />
                 <span className="text-[9px] font-semibold whitespace-nowrap">{label}</span>
               </button>
             );

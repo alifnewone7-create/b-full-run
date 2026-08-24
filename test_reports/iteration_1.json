@@ -1,0 +1,23 @@
+{
+  "summary": "Frontend-only verification of /challenges desktop chrome, rail active-state bug fix, and Trade->/demo-trade navigation. All acceptance criteria pass.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_verifications": {
+    "rail_items_visible": "side-trade, side-challenges, side-profile, side-help, side-settings, shell-logout-btn all visible",
+    "trade_inactive_color": "rgba(255,255,255,0.4) (svg same). bg transparent. NOT green — bug fix confirmed.",
+    "challenges_active_color": "rgb(20,184,119) with bg rgba(20,184,119,0.1) — correct active green.",
+    "green_indicator_bars": "0 absolutely-positioned green 3px bars found in rail.",
+    "trade_click_navigates_to": "/demo-trade (confirmed via page.url after click).",
+    "header_elements": "shell-logo-link, shell-title (Challenges pill), shell-balance, shell-balance-value, shell-deposit-btn, shell-avatar all present.",
+    "viewport_lock": "terminal-shell overflow=hidden, height=800 (100dvh). shell-main is scrollable region."
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [],
+  "updated_files": [],
+  "success_rate": {"frontend": "100%"},
+  "seed_data_creation": "None — used playwright route mocks for /api/auth/me, /api/wallet, /api/challenges/plans and injected bfg_token via add_init_script.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "TerminalShell.jsx computes active via `path === pathname` only; no other highlight source. Mock approach in review_request works. Backend is external — do not touch."
+}
