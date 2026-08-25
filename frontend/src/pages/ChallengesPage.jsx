@@ -208,51 +208,55 @@ export default function ChallengesPage() {
         )}
 
         {!busy && data && (
-          <div className="mt-10 grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="mt-10 lg:mt-14 grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-7 items-stretch">
             {data.plans.map((p) => {
               const Icon = ICONS[p.key] || Atom;
               return (
                 <div key={p.key} data-testid={`challenge-plan-${p.key}`}
-                     className={`relative flex flex-col rounded-3xl border p-6 sm:p-7 transition-[transform,border-color] duration-300 hover:-translate-y-1 ${
-                       p.popular ? 'border-[#D4AF37]/45 bg-white/[0.045]' : 'border-white/10 bg-white/[0.025] hover:border-[#14B877]/45'}`}
-                     style={p.popular ? { boxShadow: '0 30px 90px -40px rgba(212,175,55,0.45)' } : undefined}>
+                     className={`relative flex flex-col p-6 sm:p-7 lg:p-8 ${
+                       p.popular ? 'lux-card-active lg:scale-[1.04] lg:-my-2' : 'lux-card'}`}>
                   {p.popular && (
-                    <span className="absolute -top-3 left-6 px-3 py-1 rounded-full text-[10.5px] font-extrabold uppercase tracking-[0.14em] text-[#04150d]"
-                          style={{ background: 'linear-gradient(120deg,#14B877,#6FE0B0 35%,#F4D67A 70%,#D4AF37)' }}>
+                    <span className="absolute -top-3.5 left-1/2 -translate-x-1/2 px-4 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-[0.14em] text-[#04150d] border border-[#F4D67A]/40 whitespace-nowrap"
+                          style={{
+                            background: 'linear-gradient(120deg, #14B877 0%, #6FE0B0 30%, #F4D67A 62%, #D4AF37 100%)',
+                            boxShadow: '0 8px 22px -8px rgba(212,175,55,0.55), 0 0 0 1px rgba(212,175,55,0.25) inset',
+                          }}>
                       Most Popular
                     </span>
                   )}
                   <div className="flex items-center gap-3">
-                    <span className="grid place-items-center h-11 w-11 rounded-2xl bg-[#14B877]/12 border border-[#14B877]/25">
+                    <span className="lux-icon-orb h-11 w-11 rounded-xl">
                       <Icon size={22} weight="duotone" color={p.popular ? '#D4AF37' : '#14B877'} />
                     </span>
                     <div>
                       <div className="text-[17px] font-bold leading-tight">{p.label}</div>
-                      <div className="text-[12px] text-white/45">{p.tagline}</div>
+                      <div className="text-[12px] lux-muted">{p.tagline}</div>
                     </div>
                   </div>
 
                   <div className="mt-6 flex items-end gap-2">
                     <span className="text-[38px] font-extrabold leading-none" style={{ fontFamily: 'Manrope, sans-serif' }}>{money(p.funded_usd)}</span>
-                    <span className="text-[12.5px] text-white/45 pb-1.5">funded account</span>
+                    <span className="text-[12.5px] lux-muted pb-1.5">funded account</span>
                   </div>
                   <div className="mt-1.5 text-[13px]">
-                    <span className="text-white/45">One-time fee </span>
-                    <span className="font-bold text-[#14B877]" data-testid={`plan-price-${p.key}`}>{money(p.price_usd)}</span>
+                    <span className="lux-muted">One-time fee </span>
+                    <span className="font-bold lux-green" data-testid={`plan-price-${p.key}`}>{money(p.price_usd)}</span>
                   </div>
 
-                  <div className="mt-5 rounded-2xl border border-[#14B877]/22 px-4 py-3.5"
-                       style={{ background: 'linear-gradient(120deg, rgba(20,184,119,0.12), rgba(212,175,55,0.05))' }}>
-                    <div className="text-[10.5px] uppercase tracking-[0.16em] font-bold text-white/45">On passing you get</div>
-                    <div className="mt-0.5 text-[19px] font-bold">{money(p.quotex_usd)} <span className="text-[12.5px] font-semibold text-[#14B877]">real Quotex balance</span></div>
+                  <div className="mt-5 rounded-2xl border border-[#14B877]/25 px-4 py-3.5"
+                       style={{ background: 'linear-gradient(120deg, rgba(20,184,119,0.12), rgba(212,175,55,0.06))' }}>
+                    <div className="text-[11px] uppercase tracking-[0.16em] font-bold lux-muted">On passing you get</div>
+                    <div className="mt-0.5 text-[19px] font-bold">{money(p.quotex_usd)} <span className="text-[12.5px] font-semibold lux-green">real Quotex balance</span></div>
                   </div>
 
                   <div className={`${openKey === p.key ? 'block' : 'hidden'} md:block flex-1`} data-testid={`plan-details-${p.key}`}>
                     <ul className="mt-5 space-y-2.5">
                       {RULE_ROWS.filter(([k]) => p.rules[k] !== undefined).map(([k, label]) => (
                         <li key={k} className="flex items-center justify-between text-[13px]">
-                          <span className="text-white/50">{label}</span>
-                          <span className="font-semibold tabular-nums">{ruleValue(k, p.rules[k])}</span>
+                          <span className="flex items-center gap-2.5 lux-muted">
+                            <CheckCircle size={17} weight="duotone" color="#14B877" /> {label}
+                          </span>
+                          <span className="font-semibold tabular-nums text-white">{ruleValue(k, p.rules[k])}</span>
                         </li>
                       ))}
                     </ul>
@@ -268,14 +272,13 @@ export default function ChallengesPage() {
 
                   {p.owned ? (
                     <div data-testid={`plan-owned-${p.key}`}
-                         className="mt-6 w-full h-12 rounded-xl border border-[#14B877]/45 bg-[#14B877]/12 text-[#14B877] font-bold text-[14px] inline-flex items-center justify-center gap-2">
+                         className="mt-7 w-full py-3.5 rounded-xl border border-[#14B877]/45 bg-[#14B877]/12 text-[#14B877] font-bold text-[14px] inline-flex items-center justify-center gap-2">
                       <SealCheck size={17} weight="fill" /> Active — unlocked
                     </div>
                   ) : (
                     <button onClick={() => setBuying(p)} data-testid={`purchase-btn-${p.key}`}
-                            className={`mt-6 w-full h-12 rounded-xl font-extrabold text-[14.5px] inline-flex items-center justify-center gap-2 transition-[background-color,transform] active:scale-[0.99] ${
-                              p.popular ? 'bg-[#14B877] text-[#03150d] hover:bg-[#17cf86]'
-                                        : 'border border-[#14B877]/45 text-[#14B877] hover:bg-[#14B877]/12'}`}>
+                            className={`mt-7 w-full py-3.5 rounded-xl inline-flex items-center justify-center gap-2 text-[14.5px] ${
+                              p.popular ? 'lux-btn-primary' : 'lux-btn-ghost'}`}>
                       Purchase — {money(p.price_usd)} <ArrowRight size={16} weight="bold" />
                     </button>
                   )}
