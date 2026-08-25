@@ -13,7 +13,7 @@ const TABS = [['running', 'Running'], ['complete', 'Complete'], ['failed', 'Fail
 
 const PLAN = {
   basic: { icon: Atom, accent: '#38BDF8' },
-  standard: { icon: Crown, accent: '#A78BFA' },
+  standard: { icon: Crown, accent: '#FB7185' },
   premium: { icon: SketchLogo, accent: '#B266FF' },
 };
 

@@ -23,7 +23,7 @@ const SIDE_ITEMS = [
 const BADGES = {
   demo: { label: 'DEMO', icon: Flask, ring: 'border-amber-400/25 hover:border-amber-400/50', text: 'text-amber-300/90' },
   basic: { label: 'BASIC', icon: Atom, ring: 'border-sky-400/25 hover:border-sky-400/50', text: 'text-sky-300/90' },
-  standard: { label: 'STANDARD', icon: Crown, ring: 'border-violet-400/25 hover:border-violet-400/50', text: 'text-violet-300/90' },
+  standard: { label: 'STANDARD', icon: Crown, ring: 'border-rose-400/25 hover:border-rose-400/50', text: 'text-rose-300/90' },
   premium: { label: 'PREMIUM', icon: SketchLogo, ring: 'border-[#B266FF]/30 hover:border-[#B266FF]/60', text: 'text-[#B266FF]/90' },
 };
 
