@@ -1,0 +1,44 @@
+{
+  "summary": "Frontend-only visual/layout verification of /my-challenges after MyChallenges.jsx redesign. Tested login → /my-challenges on DESKTOP 1920x900 and MOBILE 390x844, verified header layout (title vs status pill), rule meters (Profit Target / Maximum Loss / Daily Profit / Daily Loss), Live Balance & Time remaining rendering, and tab switching (Running / Complete / Failed). No overlaps or horizontal overflow detected on either viewport.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "layout_verification": {
+    "desktop_1920": {
+      "horizontal_overflow": false,
+      "premium_block": {"title_right_px": 1398.64, "status_pill_left_px": 1410.64, "gap_px": 12.0, "overlap": false, "status_text": "Running", "position": "top-right"},
+      "standard_block": {"title_right_px": 1398.64, "status_pill_left_px": 1410.64, "gap_px": 12.0, "overlap": false, "status_text": "Running", "position": "top-right"},
+      "metrics_present": ["Profit Target 0.00%/65% $0.00", "Maximum Loss 0.02%/50% $1.00", "Daily Profit 0.00%/4% $0.00", "Daily Loss 0.02%/∞ $1.00"],
+      "progress_bars_visible": true,
+      "live_balance_rendered": "$4,999.00 / $2,500.00 with overall delta",
+      "time_remaining_rendered": "18/18 days, 15/15 days — no overlap with balance",
+      "tabs": {"running": "2 challenges shown", "complete": "empty state with Trophy + 'Browse challenges' btn", "failed": "1 challenge (Basic Challenge) with progress bars"}
+    },
+    "mobile_390": {
+      "horizontal_overflow": false,
+      "doc_scroll_width": 390,
+      "premium_block": {"title_right_px": 264.64, "status_pill_left_px": 276.64, "gap_px": 12.0, "overlap": false},
+      "standard_block": {"title_right_px": 264.64, "status_pill_left_px": 276.64, "gap_px": 12.0, "overlap": false},
+      "stacked_layout": "clean — plan icon + title (truncatable) on left, status pill fixed on right; balance, time-remaining chip, and 4 rule meters render one below another with hairline dividers, no text on top of another element",
+      "tab_switching": "Complete → empty state, Failed → Basic Challenge with visible progress bars"
+    }
+  },
+  "test_report_links": [".screenshots/desktop_running.png", ".screenshots/desktop_complete.png", ".screenshots/desktop_failed.png", ".screenshots/mobile_running.png", ".screenshots/mobile_complete.png", ".screenshots/mobile_failed.png"],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "MyChallenges redesign is layout-correct on both 1920px and 390px viewports. Title truncation (min-w-0 + truncate) combined with shrink-0 status pill produces a consistent 12px gap between title-right and pill-left at both viewports — no collisions.",
+    "Minor observation (non-blocking): on desktop the two challenge blocks are separated only by a subtle border and share the same outer card wrapper — visually OK but a slightly larger vertical gap between Premium and Standard blocks would improve scannability.",
+    "Progress bars render but are quite thin/low-contrast when value is 0.00% (nearly invisible). Screenshots confirm they are visible when non-zero (yellow time bar, red Max Loss @ 81% on Failed tab). Not a bug, just a visual note."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "n/a (skipped)", "frontend": "100%"},
+  "test_credentials": "alifdesktop@gmail.com / 12345678 (trader account with Premium + Standard running challenges and 1 Failed Basic Challenge)",
+  "seed_data_creation": "none",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "MyChallenges.jsx layout is verified overlap-free on desktop 1920 and mobile 390. All data-testids exist and are queryable: my-challenges-page, my-challenge-<plan>, state-<plan>, balance-<plan>, days-left-<plan>, profit-target-<plan>, max-loss-<plan>, today-profit-<plan>, today-loss-<plan>, my-challenges-empty, browse-challenges-btn, tab-running/complete/failed. Backend endpoint /api/challenges/mine is served by external VPS (api.binaryfundglobal.com) and returns valid data for this account.",
+  "rca of the issue": "N/A — original overlap bug is resolved. Fix pattern: header row uses flex with min-w-0 on the title container (enabling truncate) and shrink-0 on the status pill, keeping the pill anchored at top-right."
+}
