@@ -13,6 +13,7 @@ import TradesPanel from '../components/trade/TradesPanel';
 import AccountSwitcher from '../components/trade/AccountSwitcher';
 import TradeSkeleton from '../components/trade/TradeSkeleton';
 import BrandLogo from '../components/BrandLogo';
+import MobileNav from '../components/MobileNav';
 
 import { API_BASE as API } from '../lib/apiBase';
 import sfx from '../lib/sfx';
@@ -598,21 +599,7 @@ export default function DemoTrade() {
       <TradePanel mobile instrument={activeIns} amount={amount} setAmount={setAmount} duration={duration} setDuration={setDuration} onTrade={placeTrade} placing={placing} balance={balance} />
 
       {/* Bottom navigation (mobile) */}
-      <nav className="md:hidden shrink-0 flex items-stretch border-t border-white/[0.07] bg-[#040D09] pb-[env(safe-area-inset-bottom)]" data-testid="mobile-bottom-nav">
-        {[
-          [ChartLineUp, 'Chart', null, true],
-          [ChartPieSlice, 'Portfolio', '/dashboard', false],
-          [ClockCounterClockwise, 'History', null, false],
-          [UserIcon, 'Profile', '/profile', false],
-          [SignOut, 'Logout', 'logout', false],
-        ].map(([Icon, label, path, isActive]) => (
-          <button key={label} data-testid={`mobile-nav-${label.toLowerCase()}`} aria-label={label}
-                  onClick={() => { if (path === 'logout') logout(); else if (path) navigate(path); }}
-                  className={`flex-1 py-2.5 flex items-center justify-center transition-colors ${isActive ? 'text-[#14b877]' : 'text-white/40 active:text-white'}`}>
-            <Icon size={21} weight={isActive ? 'fill' : 'duotone'} />
-          </button>
-        ))}
-      </nav>
+      <MobileNav />
 
       <AssetPicker open={pickerOpen} onClose={() => setPickerOpen(false)} instruments={instrumentList} quotes={quotes} onSelect={openTab} />
       <AccountSwitcher open={accountsOpen} onClose={() => setAccountsOpen(false)} onSwitched={onAccountSwitched} />

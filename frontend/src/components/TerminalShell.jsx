@@ -6,6 +6,7 @@ import {
   CaretDown, ArrowLeft, Flask, Atom, Crown, SketchLogo,
 } from '@phosphor-icons/react';
 import BrandLogo from './BrandLogo';
+import MobileNav from './MobileNav';
 import AccountSwitcher from './trade/AccountSwitcher';
 import { API_BASE as API } from '../lib/apiBase';
 import { useToast } from '../hooks/use-toast';
@@ -139,6 +140,8 @@ export const TerminalShell = ({ title, icon: TitleIcon = Trophy, children }) => 
           {children}
         </main>
       </div>
+
+      <MobileNav />
 
       <AccountSwitcher open={accountsOpen} onClose={() => setAccountsOpen(false)} onSwitched={loadAccount} />
     </div>
