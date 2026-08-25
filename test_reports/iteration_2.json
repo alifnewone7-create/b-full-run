@@ -1,0 +1,38 @@
+{
+  "summary": "Frontend-only verification of per-account trade isolation. Confirmed refreshTrades sends account query param, socket handlers guard on trade.account with graceful degradation (missing field NOT dropped), onAccountSwitched wipes state, /demo-trade + /challenges + /profile all render without crashes on desktop + mobile. Backend code reviewed only (not run) — logic looks correct.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {"ui_bugs": [], "integration_issues": [], "design_issues": []},
+  "test_verifications": {
+    "refreshTrades_query_param": "Observed https://api.binaryfundglobal.com/api/trade/open?account=demo AND /api/trade/history?account=demo on initial mount and after wallet.type resolution. Confirmed axios.get uses params:{account} at DemoTrade.jsx:157-159.",
+    "accountKeyRef_sync": "accountKeyRef.current = accountKey is set on every render (line 90) AND additionally re-synced inside /auth/me + /wallet callbacks (lines 181, 189) AND inside onAccountSwitched (line 487). No stale-closure risk in socket handlers.",
+    "socket_guards_graceful_degradation": "s_orders/open (line 284), s_orders/close (line 301), trade_closed (line 312) all use `if (trade?.account && trade.account !== accountKeyRef.current) return;` — when the external VPS backend omits `account`, the first conjunct is falsy so the event is NOT dropped. Correct.",
+    "placeTrade_payload": "Includes `account: accountKey` (line 427) AND legacy `isDemo: accountKey === 'demo' ? 1 : 0` (line 425) in the trade/place socket emit. Confirmed in DemoTrade.jsx.",
+    "onAccountSwitched": "Wipes openTrades + history + historyBootedRef, updates accountKeyRef synchronously, then calls refreshTrades(newKey). Correct (lines 485-495).",
+    "trade_page_renders": "demo-trade-page + demo-balance + balance-value + account-badge + add-asset-button + asset-tab-EURUSD_OTC + all 5 side-* rail buttons + trade-avatar + trade-logout-button all visible. No console errors, no ErrorBoundary.",
+    "challenges_page_renders": "challenges-page visible, side-trade/challenges/profile rail visible.",
+    "profile_page_renders": "side-trade + side-profile visible, no crashes.",
+    "mobile_trade_renders": "mobile-market-button visible at 414x820, no ErrorBoundary. MobileNav bottom bar (Chart/Challenges/Profile/History/Logout) present."
+  },
+  "backend_code_review": {
+    "account_wallet_ids": "Correctly filters Wallet by (user_id, wallet_type=key). Returns (key, wallet_ids). Defaults to 'demo' on unknown key.",
+    "order_to_dict": "Now emits `account` field (line 194). Called with `account=w.wallet_type` in place_trade_core, `account=key` in /trade/open and /trade/history — consistent per-account tagging.",
+    "place_trade_core": "Calls get_active_wallet(db, user, payload.account) then Order.wallet_id = w.id — order is bound to the correct per-account wallet. Transaction.provider=w.wallet_type. Correct.",
+    "trade_open_history_scope": "Both endpoints filter Order.wallet_id.in_(wallet_ids) for the requested account → strict isolation. If no wallet exists yet for that account type, returns [] rather than falling back to other accounts. Correct.",
+    "ws_settle": "_settle_one emits `account: wallet.wallet_type` in closed_dict (line 117) and uses wallet.wallet_type as tx provider (line 110). Correct.",
+    "potential_edge_cases": [
+      "get_active_wallet auto-creates a wallet for a locked account only after the locked check — a place_trade payload for a still-locked account correctly 403s before wallet is created.",
+      "In place_trade_core the frontend can pass payload.account=null (legacy clients); get_active_wallet then falls back to profile.active_account. Behaviour is consistent — no cross-account bleed."
+    ]
+  },
+  "test_report_links": [],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "None blocking. Minor nit: in placeTrade the optimistic trade sets `account: accountKey` (good) but if the user switches accounts *while a place is in-flight*, the optimistic entry could linger in the new account's openTrades until server ack rolls it back. Consider filtering openTrades by account on account switch (onAccountSwitched already wipes, so this is already handled). No change needed."
+  ],
+  "updated_files": [],
+  "success_rate": {"frontend": "100%"},
+  "seed_data_creation": "None — playwright route mocks for /api/auth/me, /api/wallet, /api/market/instruments (icon as {type:'pair',base,quote} object shape), /api/trade/open, /api/trade/history, /api/accounts, /api/challenges/plans ({plans:[...]} shape). Token injected via add_init_script('localStorage.setItem(bfg_token, mocktoken)').",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Mocks for /api/market/instruments MUST return icon as an object ({type:'pair',base,quote} or {type:'crypto',id} or {color,text}) — string icons crash AssetIcon. /api/challenges/plans MUST return {plans:[...]} shape, not a bare array. add_init_script fires before first navigation so localStorage.bfg_token is set in time to skip the /login redirect. Backend on api.binaryfundglobal.com is EXTERNAL and returns 401 for the mock token, but WS/socket refresh is best-effort and does not block UI."
+}

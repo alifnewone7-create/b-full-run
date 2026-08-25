@@ -173,13 +173,26 @@ async def get_active_wallet(db: AsyncSession, user: User, account: Optional[str]
     return w
 
 
-def order_to_dict(o: Order, instrument_name: str = "") -> dict:
+async def account_wallet_ids(db: AsyncSession, user: User, account: Optional[str] = None):
+    """Wallet ids belonging to one account type — trades are scoped to these."""
+    await db.refresh(user, ["profile"])
+    key = (account or (user.profile.active_account if user.profile else "demo") or "demo").lower()
+    if key not in ACCOUNT_PLANS:
+        key = "demo"
+    q = await db.execute(
+        select(Wallet.id).where(and_(Wallet.user_id == user.id, Wallet.wallet_type == key))
+    )
+    return key, list(q.scalars().all())
+
+
+def order_to_dict(o: Order, instrument_name: str = "", account: str = "") -> dict:
     # NOTE: `payout` field is intentionally NOT included — the admin-controlled
     # payout table is only exposed to clients via the binary Socket.IO event
     # `markets/payouts` so it never appears in plain-text HTTP responses.
     return {
         "id": str(o.id),
         "user_id": str(o.user_id),
+        "account": account,
         "symbol": o.symbol,
         "name": instrument_name or engine.meta.get(o.symbol, {}).get("name", o.symbol),
         "direction": o.direction,
@@ -374,7 +387,7 @@ async def place_trade_core(
         from routes.sio_hub import push_trade_open
         await push_trade_open(
             str(user.id),
-            order_to_dict(order, ins["name"]),
+            order_to_dict(order, ins["name"], w.wallet_type),
             round(float(w.balance), 2),
             request_id=payload.requestId,
         )
@@ -382,7 +395,7 @@ async def place_trade_core(
         pass
 
     return {
-        "trade": order_to_dict(order, ins["name"]),
+        "trade": order_to_dict(order, ins["name"], w.wallet_type),
         "balance": round(float(w.balance), 2),
         "requestId": payload.requestId,
         "account": w.wallet_type,
@@ -391,24 +404,38 @@ async def place_trade_core(
 
 @router.get("/trade/open")
 async def open_trades(
+    account: Optional[str] = None,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    key, wallet_ids = await account_wallet_ids(db, user, account)
+    if not wallet_ids:
+        return []
     q = await db.execute(
-        select(Order).where(and_(Order.user_id == user.id, Order.status == "open"))
-        .order_by(Order.created_at.desc()).limit(100)
+        select(Order).where(and_(
+            Order.user_id == user.id,
+            Order.wallet_id.in_(wallet_ids),
+            Order.status == "open",
+        )).order_by(Order.created_at.desc()).limit(100)
     )
-    return [order_to_dict(o) for o in q.scalars().all()]
+    return [order_to_dict(o, account=key) for o in q.scalars().all()]
 
 
 @router.get("/trade/history")
 async def trade_history(
     limit: int = 50,
+    account: Optional[str] = None,
     user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ):
+    key, wallet_ids = await account_wallet_ids(db, user, account)
+    if not wallet_ids:
+        return []
     q = await db.execute(
-        select(Order).where(and_(Order.user_id == user.id, Order.status != "open"))
-        .order_by(Order.expiry_at.desc()).limit(min(limit, 200))
+        select(Order).where(and_(
+            Order.user_id == user.id,
+            Order.wallet_id.in_(wallet_ids),
+            Order.status != "open",
+        )).order_by(Order.expiry_at.desc()).limit(min(limit, 200))
     )
-    return [order_to_dict(o) for o in q.scalars().all()]
+    return [order_to_dict(o, account=key) for o in q.scalars().all()]

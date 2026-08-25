@@ -86,6 +86,8 @@ export default function DemoTrade() {
   const wsRef = useRef(null);
   const activeRef = useRef(active);
   activeRef.current = active;
+  const accountKeyRef = useRef(accountKey);
+  accountKeyRef.current = accountKey;
 
   const token = localStorage.getItem('bfg_token');
   const authH = { headers: { Authorization: `Bearer ${token}` } };
@@ -150,9 +152,11 @@ export default function DemoTrade() {
     };
   }, []);
 
-  const refreshTrades = useCallback(() => {
-    axios.get(`${API}/api/trade/open`, authH).then(({ data }) => setOpenTrades(data)).catch(() => {});
-    axios.get(`${API}/api/trade/history`, authH).then(({ data }) => {
+  const refreshTrades = useCallback((acct) => {
+    const account = acct || accountKeyRef.current;
+    axios.get(`${API}/api/trade/open`, { ...authH, params: { account } })
+      .then(({ data }) => setOpenTrades(data)).catch(() => {});
+    axios.get(`${API}/api/trade/history`, { ...authH, params: { account } }).then(({ data }) => {
       setHistory(data);
       // Fallback for a missed socket close event: surface freshly settled trades.
       if (!historyBootedRef.current) {
@@ -172,14 +176,20 @@ export default function DemoTrade() {
     if (!token) { navigate('/login', { replace: true }); return; }
     axios.get(`${API}/api/auth/me`, authH).then(({ data }) => {
       setUser(data);
-      setAccountKey(data.active_account || 'demo');
+      if (data.active_account) {
+        setAccountKey(data.active_account);
+        accountKeyRef.current = data.active_account;
+      }
     }).catch(() => { localStorage.removeItem('bfg_token'); navigate('/login', { replace: true }); });
     axios.get(`${API}/api/market/instruments`).then(({ data }) => setInstruments(data));
     axios.get(`${API}/api/wallet`, authH).then(({ data }) => {
       setBalance(data.balance);
-      if (data.type) setAccountKey(data.type);
-    }).catch(() => {});
-    refreshTrades();
+      if (data.type) {
+        setAccountKey(data.type);
+        accountKeyRef.current = data.type;
+      }
+      refreshTrades(data.type || accountKeyRef.current);
+    }).catch(() => { refreshTrades(); });
   }, []); // eslint-disable-line
 
   // Socket.IO realtime feed — Quotex-style protocol with binary msgpack payloads.
@@ -270,6 +280,8 @@ export default function DemoTrade() {
 
     // "s_orders/open" — server-verified open echo (Quotex-style protocol).
     socket.on('s_orders/open', ({ trade, balance: bal, requestId }) => {
+      // Trades are per-account — ignore echoes for an account we're not viewing.
+      if (trade?.account && trade.account !== accountKeyRef.current) return;
       if (bal !== undefined && bal !== null) setBalance(bal);
       setOpenTrades((t) => {
         // Strip the matching optimistic placeholder so the real trade takes over
@@ -286,6 +298,7 @@ export default function DemoTrade() {
 
     // "s_orders/close" — server-verified close (Quotex-style protocol).
     socket.on('s_orders/close', ({ trade, balance: bal }) => {
+      if (trade?.account && trade.account !== accountKeyRef.current) return;
       setBalance(bal);
       setOpenTrades((t) => t.filter((x) => x.id !== trade.id));
       // Dedupe — the legacy `trade_closed` event can arrive for the same trade,
@@ -296,6 +309,7 @@ export default function DemoTrade() {
 
     // Legacy JSON event kept for backward compatibility with older backend.
     socket.on('trade_closed', ({ trade, balance: bal }) => {
+      if (trade?.account && trade.account !== accountKeyRef.current) return;
       setBalance(bal);
       setOpenTrades((t) => t.filter((x) => x.id !== trade.id));
       setHistory((h) => (h.some((x) => x.id === trade.id) ? h : [trade, ...h]).slice(0, 50));
@@ -470,9 +484,14 @@ export default function DemoTrade() {
 
   const onAccountSwitched = ({ active: newKey, balance: newBal }) => {
     setAccountKey(newKey);
+    accountKeyRef.current = newKey;
     setBalance(newBal);
     setUser((u) => (u ? { ...u, active_account: newKey } : u));
-    refreshTrades();
+    // Wipe the previous account's trades before loading the new account's.
+    setOpenTrades([]);
+    setHistory([]);
+    historyBootedRef.current = false;
+    refreshTrades(newKey);
   };
 
   const logout = () => {

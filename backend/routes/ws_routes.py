@@ -107,13 +107,14 @@ async def _settle_one(db: AsyncSession, order: Order) -> tuple[dict, float]:
             wallet_id=wallet.id, user_id=order.user_id,
             tx_type="pnl" if status == "won" else "refund",
             amount=credit, balance_after=wallet.balance,
-            provider="demo", status="completed",
+            provider=wallet.wallet_type, status="completed",
             reference_id=order.id,
         ))
 
     closed_dict = {
         "id": str(order.id),
         "user_id": str(order.user_id),
+        "account": wallet.wallet_type,
         "symbol": order.symbol,
         "name": engine.meta.get(order.symbol, {}).get("name", order.symbol),
         "direction": order.direction,
