@@ -1,0 +1,37 @@
+{
+  "summary": "Frontend-only testing of the new /my-challenges page + updated side/bottom nav. All 6 review points verified with mocked APIs. My Chal sits directly below Trade on the desktop rail, is highlighted green when active. Running is default tab. Tabs correctly filter (Running=1, Complete=0, Failed=1) with count badges. Basic running card shows balance $1,120.00, days '6 of 13 days left', and profit-target bar width EXACTLY 20% (12/60). Premium failed card shows Profit Target 0.00% with empty (0%) bar (no negative), and today-loss with limit_pct=null renders '/ no limit' with empty bar (no NaN). Empty state on Complete tab renders and 'Browse challenges' navigates to /challenges. Mobile bottom bar order (Chart, My Chal, Profile, Challenges, Logout) is correct with no History slot. My Chal from /demo-trade opens /my-challenges; Challenges from mobile opens /challenges. No horizontal overflow at 414x820. Desktop rail contains the expected 6 items (Trade, My Chal, Challenges, Profile, Help, Settings) on all TerminalShell pages and on the DemoTrade page (rail visible in screenshot).",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "GET /api/challenges/mine", "issue": "days_left formula: `(ends_at - now).days + (1 if (ends_at - now).seconds and ends_at > now else 0)` will over-count by 1 in some cases and can behave unexpectedly if ends_at is in the past (timedelta.days becomes negative, .seconds is still non-negative). max(0, ...) partially masks this. Prefer math.ceil((ends_at - now).total_seconds() / 86400) when ends_at > now, else 0."},
+      {"endpoint": "GET /api/challenges/mine", "issue": "State derivation only considers ends_at expiry as 'failed' when no target and profit_pct<target; it never derives 'complete' from an in-time balance meeting target unless c.status is already 'passed'. That path is fine, but note that if ends_at <= now and target is 0, it's labeled 'complete' regardless of PnL — likely unintended."},
+      {"endpoint": "GET /api/challenges/mine", "issue": "today's PnL is filtered by `Order.status != 'open'` and `Order.settled_at >= day_start`, but Order.settled_at may be NULL for still-open orders — safe. However tz assumption: day_start uses UTC midnight; if the user is in a different timezone the 'Today' bar rolls at the wrong time. Consider a user-configurable trading day."},
+      {"endpoint": "GET /api/challenges/mine", "issue": "loss_pct is computed against account_size which is fine, but max_loss rule sometimes is defined as % of starting balance minus fees — verify ACCOUNT_PLANS rules match the marketing copy."},
+      {"endpoint": "GET /api/challenges/mine", "issue": "daily_loss_pct falsy-check: `float(daily_loss_pct) if daily_loss_pct else None` will also treat 0 as null (rendering 'no limit') — should be `None if daily_loss_pct is None else float(daily_loss_pct)`."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [],
+  "action_items": [
+    "(minor) Refine days_left math in backend to ceil-based calculation guarded against negative timedeltas.",
+    "(minor) Fix daily_loss_pct falsy handling in /api/challenges/mine so that 0 is treated as an explicit 0% limit rather than 'no limit'.",
+    "(minor) Consider timezone handling for 'today' aggregation."
+  ],
+  "critical_code_review_comments": [
+    "MyChallenges.jsx Meter floors negative % (Math.max(0,...)) — good; also gracefully renders 'no limit' when limit is falsy. No mongodb _id concerns (SQLAlchemy backend).",
+    "TerminalShell SIDE_ITEMS and MobileNav ITEMS match the requested order exactly.",
+    "data-testid for rail includes a space ('side-my chal', 'mobile-nav-my chal') because it is derived from label.toLowerCase(); works but a space in a testid is fragile — consider using slugified labels."
+  ],
+  "updated_files": [],
+  "success_rate": {"backend": "code-review only", "frontend": "100%"},
+  "test_credentials": "n/a — auth token mocked with localStorage bfg_token=mocktoken",
+  "seed_data_creation": "None — all APIs mocked via Playwright page.route (challenges/mine, auth/me, wallet, market/instruments, trade/history, trade/open, challenges/plans).",
+  "retest_needed": false,
+  "main_agent_can_self_test": true,
+  "context_for_next_testing_agent": "Frontend /my-challenges works end-to-end with mocked APIs. Backend /api/challenges/mine is on user's VPS and cannot be exercised in-container; only static review was performed. When the endpoint is deployed, add pytest coverage: (a) balance>size profit>0/loss=0, (b) balance<size profit=0/loss>0 (recovery reduces loss), (c) days_left when ends_at in past, (d) daily_loss_pct=0 vs null distinction, (e) today PnL only counts orders with settled_at >= UTC-midnight and status!=open.",
+  "rca of the issue": "No blocking issues found."
+}

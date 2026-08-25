@@ -1,5 +1,6 @@
 """Challenge plans + Binance Pay purchases (server-side verified)."""
 import logging
+from math import ceil
 from datetime import datetime, timezone, timedelta
 from decimal import Decimal
 
@@ -11,7 +12,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 import binance_pay
 from auth import get_current_user
 from database import get_db
-from models import User, Profile, Wallet, Challenge, ChallengePurchase
+from models import User, Profile, Wallet, Order, Challenge, ChallengePurchase
 from routes.admin_routes import require_admin
 from routes.trade_routes import ACCOUNT_PLANS
 
@@ -51,6 +52,108 @@ async def list_plans(user: User = Depends(get_current_user), db: AsyncSession = 
             "currency": "USDT",
         },
     }
+
+
+def _pct(value: Decimal, size: Decimal) -> float:
+    if size <= 0:
+        return 0.0
+    return round(float(value / size * 100), 2)
+
+
+@router.get("/challenges/mine")
+async def my_challenges(user: User = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+    """Every challenge this user bought, with live balance and rule progress.
+
+    Profit/loss are derived from the account's live balance against the funded
+    size, so a recovered drawdown shrinks the loss figures instead of sticking.
+    """
+    q = await db.execute(
+        select(Challenge).where(Challenge.user_id == user.id).order_by(desc(Challenge.created_at))
+    )
+    challenges = list(q.scalars().all())
+    if not challenges:
+        return {"challenges": []}
+
+    wq = await db.execute(select(Wallet).where(Wallet.user_id == user.id))
+    wallets = {w.wallet_type: w for w in wq.scalars().all()}
+
+    now = datetime.now(timezone.utc)
+    day_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+
+    out = []
+    for c in challenges:
+        plan = ACCOUNT_PLANS.get(c.plan, {})
+        rules = plan.get("rules", {})
+        size = Decimal(str(c.account_size or plan.get("balance") or 0))
+        wallet = wallets.get(c.plan)
+        balance = Decimal(str(wallet.balance)) if wallet else size
+
+        pnl = balance - size
+        profit = pnl if pnl > 0 else Decimal("0")
+        loss = -pnl if pnl < 0 else Decimal("0")
+
+        today = Decimal("0")
+        if wallet:
+            tq = await db.execute(
+                select(func.coalesce(func.sum(Order.pnl), 0)).where(and_(
+                    Order.user_id == user.id,
+                    Order.wallet_id == wallet.id,
+                    Order.status != "open",
+                    Order.settled_at >= day_start,
+                ))
+            )
+            today = Decimal(str(tq.scalar() or 0))
+        today_profit = today if today > 0 else Decimal("0")
+        today_loss = -today if today < 0 else Decimal("0")
+
+        ends_at = c.ended_at or (c.started_at + timedelta(days=int(c.duration_days or 0)))
+        remaining = (ends_at - now).total_seconds()
+        days_left = ceil(remaining / 86400) if remaining > 0 else 0
+
+        target_pct = float(rules.get("profit_target_pct") or 0)
+        max_loss_pct = float(rules.get("max_loss_pct") or 0)
+        daily_profit_pct = float(rules.get("daily_profit_pct") or 0)
+        daily_loss_pct = rules.get("daily_loss_pct")
+
+        profit_pct = _pct(profit, size)
+        loss_pct = _pct(loss, size)
+
+        state = "running"
+        if c.status in ("passed", "complete", "completed"):
+            state = "complete"
+        elif c.status in ("failed", "breached"):
+            state = "failed"
+        elif target_pct and profit_pct >= target_pct:
+            state = "complete"
+        elif max_loss_pct and loss_pct >= max_loss_pct:
+            state = "failed"
+        elif ends_at <= now:
+            state = "complete" if (target_pct and profit_pct >= target_pct) else "failed"
+
+        out.append({
+            "id": str(c.id),
+            "plan": c.plan,
+            "label": plan.get("label", c.plan.title()),
+            "state": state,
+            "account_size": float(size),
+            "balance": float(balance),
+            "pnl": float(pnl),
+            "started_at": c.started_at.isoformat() if c.started_at else None,
+            "ends_at": ends_at.isoformat() if ends_at else None,
+            "duration_days": int(c.duration_days or 0),
+            "days_left": days_left,
+            "profit": {"amount": float(profit), "pct": profit_pct, "target_pct": target_pct},
+            "loss": {"amount": float(loss), "pct": loss_pct, "limit_pct": max_loss_pct},
+            "today_profit": {"amount": float(today_profit), "pct": _pct(today_profit, size), "target_pct": daily_profit_pct},
+            "today_loss": {
+                "amount": float(today_loss),
+                "pct": _pct(today_loss, size),
+                "limit_pct": None if daily_loss_pct is None else float(daily_loss_pct),
+            },
+        })
+
+    return {"challenges": out}
+
 
 
 class PurchaseRequest(BaseModel):

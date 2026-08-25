@@ -15,6 +15,7 @@ import AdminPortal from './pages/AdminPortal';
 import VerifyEmail from './pages/VerifyEmail';
 import ResetPassword from './pages/ResetPassword';
 import ChallengesPage from './pages/ChallengesPage';
+import MyChallenges from './pages/MyChallenges';
 import { Toaster } from './components/ui/toaster';
 import ErrorBoundary from './components/ErrorBoundary';
 import { ConfigProvider, useAppConfig } from './context/ConfigContext';
@@ -39,6 +40,7 @@ function AppRoutes() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/demo-trade" element={<DemoTrade />} />
           <Route path="/challenges" element={<ChallengesPage />} />
+          <Route path="/my-challenges" element={<MyChallenges />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/verify-email" element={<VerifyEmail />} />

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { io } from 'socket.io-client';
 import { Unpackr } from 'msgpackr';
-import { Plus, X, SignOut, ChartPieSlice, ClockCounterClockwise, Question, GearSix, Download, User as UserIcon, CaretDown, ChartLineUp, Flask, Atom, Crown, SketchLogo, Trophy } from '@phosphor-icons/react';
+import { Plus, X, SignOut, ChartPieSlice, ClockCounterClockwise, Question, GearSix, Download, User as UserIcon, CaretDown, ChartLineUp, Flask, Atom, Crown, SketchLogo, Trophy, Medal } from '@phosphor-icons/react';
 import { useToast } from '../hooks/use-toast';
 import { AssetIcon } from '../components/trade/AssetIcon';
 import AssetPicker from '../components/trade/AssetPicker';
@@ -22,6 +22,7 @@ const DEFAULT_TABS = ['EURUSD_OTC', 'GBPUSD_OTC', 'USDJPY_OTC', 'EURAUD_OTC'];
 
 const SIDE_ITEMS = [
   [ChartLineUp, 'Trade', '/demo-trade'],
+  [Medal, 'My Chal', '/my-challenges'],
   [Trophy, 'Challenges', '/challenges'],
   [UserIcon, 'Profile', '/profile'],
   [Question, 'Help', null],

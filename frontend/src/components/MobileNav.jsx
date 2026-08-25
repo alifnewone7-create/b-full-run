@@ -1,12 +1,12 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChartLineUp, Trophy, User as UserIcon, ClockCounterClockwise, SignOut } from '@phosphor-icons/react';
+import { ChartLineUp, Trophy, Medal, User as UserIcon, SignOut } from '@phosphor-icons/react';
 
 const ITEMS = [
   [ChartLineUp, 'Chart', '/demo-trade'],
-  [Trophy, 'Challenges', '/challenges'],
+  [Medal, 'My Chal', '/my-challenges'],
   [UserIcon, 'Profile', '/profile'],
-  [ClockCounterClockwise, 'History', null],
+  [Trophy, 'Challenges', '/challenges'],
   [SignOut, 'Logout', 'logout'],
 ];
 
@@ -30,7 +30,7 @@ export const MobileNav = () => {
         const on = path === pathname;
         return (
           <button key={label} onClick={() => go(path)} aria-label={label}
-                  data-testid={`mobile-nav-${label.toLowerCase()}`}
+                  data-testid={`mobile-nav-${label.toLowerCase().replace(/\s+/g, '-')}`}
                   className={`flex-1 py-2 flex flex-col items-center justify-center gap-0.5 transition-colors ${
                     on ? 'text-[#14b877]' : 'text-white/40 active:text-white'}`}>
             <Icon size={20} weight={on ? 'fill' : 'duotone'} />
