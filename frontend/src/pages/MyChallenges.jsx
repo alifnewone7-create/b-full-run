@@ -68,15 +68,14 @@ const ChallengeBlock = ({ c }) => {
   return (
     <section
       data-testid={`my-challenge-${c.plan}`}
-      className="relative border-b border-white/[0.06] pb-7 last:border-none last:pb-0
-                 md:border-none md:pb-0 md:rounded-2xl md:border md:border-white/[0.08]
-                 md:bg-[linear-gradient(160deg,rgba(255,255,255,0.05),rgba(255,255,255,0.012))]
-                 md:shadow-[0_28px_80px_-60px_rgba(0,0,0,0.95)] md:overflow-hidden"
+      className="relative rounded-2xl border border-white/[0.08]
+                 bg-[linear-gradient(160deg,rgba(255,255,255,0.05),rgba(255,255,255,0.012))]
+                 shadow-[0_28px_80px_-60px_rgba(0,0,0,0.95)] overflow-hidden"
     >
-      <span className="hidden md:block absolute inset-x-0 top-0 h-[2px]"
+      <span className="block absolute inset-x-0 top-0 h-[2px]"
             style={{ background: `linear-gradient(90deg, ${plan.accent}, ${plan.accent}00 65%)` }} />
 
-      <div className="md:p-6 lg:p-7">
+      <div className="p-5 md:p-6 lg:p-7">
         {/* Header — identity + state (badge can never collide: title truncates, badge is shrink-0) */}
         <div className="flex items-start gap-3">
           <span className="grid place-items-center h-11 w-11 shrink-0 rounded-2xl border"
