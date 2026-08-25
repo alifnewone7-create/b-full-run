@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import {
   ArrowRight, CheckCircle, Atom, Crown, SketchLogo, Copy,
-  CircleNotch, ShieldCheck, X, CurrencyCircleDollar, SealCheck, Warning, Trophy,
+  CircleNotch, ShieldCheck, X, CurrencyCircleDollar, SealCheck, Warning, Trophy, CaretDown,
 } from '@phosphor-icons/react';
 import { API_BASE as API } from '../lib/apiBase';
 import { isLoggedIn } from '../lib/auth';
@@ -163,6 +163,7 @@ export default function ChallengesPage() {
   const [data, setData] = useState(null);
   const [busy, setBusy] = useState(true);
   const [buying, setBuying] = useState(null);
+  const [openKey, setOpenKey] = useState(null);
 
   const load = useCallback(async () => {
     setBusy(true);
@@ -195,7 +196,7 @@ export default function ChallengesPage() {
           <h1 className="text-[28px] sm:text-[38px] font-extrabold leading-[1.08]" style={{ fontFamily: 'Manrope, sans-serif' }}>
             Choose your <span className="text-[#14B877]">funding level</span>
           </h1>
-          <p className="mt-3 text-[14.5px] text-white/50 leading-relaxed">
+          <p className="hidden sm:block mt-3 text-[14.5px] text-white/50 leading-relaxed">
             One-time fee, no subscription. Pass the rules and we deposit real balance into a live Quotex account for you.
           </p>
         </div>
@@ -246,22 +247,24 @@ export default function ChallengesPage() {
                     <div className="mt-0.5 text-[19px] font-bold">{money(p.quotex_usd)} <span className="text-[12.5px] font-semibold text-[#14B877]">real Quotex balance</span></div>
                   </div>
 
-                  <ul className="mt-5 space-y-2.5">
-                    {RULE_ROWS.filter(([k]) => p.rules[k] !== undefined).map(([k, label]) => (
-                      <li key={k} className="flex items-center justify-between text-[13px]">
-                        <span className="text-white/50">{label}</span>
-                        <span className="font-semibold tabular-nums">{ruleValue(k, p.rules[k])}</span>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className={`${openKey === p.key ? 'block' : 'hidden'} md:block flex-1`} data-testid={`plan-details-${p.key}`}>
+                    <ul className="mt-5 space-y-2.5">
+                      {RULE_ROWS.filter(([k]) => p.rules[k] !== undefined).map(([k, label]) => (
+                        <li key={k} className="flex items-center justify-between text-[13px]">
+                          <span className="text-white/50">{label}</span>
+                          <span className="font-semibold tabular-nums">{ruleValue(k, p.rules[k])}</span>
+                        </li>
+                      ))}
+                    </ul>
 
-                  <ul className="mt-5 space-y-2 flex-1">
-                    {(p.perks || []).map((perk) => (
-                      <li key={perk} className="flex items-start gap-2 text-[12.5px] text-white/60">
-                        <CheckCircle size={16} weight="duotone" color="#14B877" className="shrink-0 mt-0.5" /> {perk}
-                      </li>
-                    ))}
-                  </ul>
+                    <ul className="mt-5 space-y-2">
+                      {(p.perks || []).map((perk) => (
+                        <li key={perk} className="flex items-start gap-2 text-[12.5px] text-white/60">
+                          <CheckCircle size={16} weight="duotone" color="#14B877" className="shrink-0 mt-0.5" /> {perk}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
 
                   {p.owned ? (
                     <div data-testid={`plan-owned-${p.key}`}
@@ -276,6 +279,14 @@ export default function ChallengesPage() {
                       Purchase — {money(p.price_usd)} <ArrowRight size={16} weight="bold" />
                     </button>
                   )}
+
+                  {/* Mobile — reveal plan rules & perks */}
+                  <button onClick={() => setOpenKey(openKey === p.key ? null : p.key)}
+                          data-testid={`details-btn-${p.key}`}
+                          className="md:hidden mt-2.5 w-full h-11 rounded-xl border border-white/12 bg-white/[0.03] text-[13.5px] font-bold text-white/70 inline-flex items-center justify-center gap-1.5 active:bg-white/[0.07] transition-colors">
+                    {openKey === p.key ? 'Hide details' : 'Details'}
+                    <CaretDown size={14} weight="bold" className={`transition-transform duration-200 ${openKey === p.key ? 'rotate-180' : ''}`} />
+                  </button>
                 </div>
               );
             })}
