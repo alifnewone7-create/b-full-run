@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import {
   ChartLineUp, Trophy, User as UserIcon, Question, GearSix, SignOut, Download,
-  CaretDown, ArrowLeft, Flask, Atom, Crown, SketchLogo,
+  CaretDown, Flask, Atom, Crown, SketchLogo,
 } from '@phosphor-icons/react';
 import BrandLogo from './BrandLogo';
 import MobileNav from './MobileNav';
@@ -66,12 +66,11 @@ export const TerminalShell = ({ title, icon: TitleIcon = Trophy, children }) => 
           <BrandLogo className="h-7 w-auto object-contain" />
         </Link>
 
-        {/* Mobile — back to terminal */}
-        <button onClick={() => navigate('/demo-trade')} data-testid="shell-back-btn"
-                className="md:hidden shrink-0 flex items-center gap-2 rounded-xl border border-white/[0.09] bg-gradient-to-b from-white/[0.05] to-transparent px-2.5 py-1.5 active:bg-white/[0.06] transition-colors">
-          <ArrowLeft size={15} weight="bold" />
-          <span className="text-[13px] font-bold whitespace-nowrap">{title}</span>
-        </button>
+        {/* Mobile — page name */}
+        <div className="md:hidden shrink-0 flex items-center gap-2" data-testid="shell-mobile-title">
+          <TitleIcon size={19} weight="fill" className="text-[#14b877]" />
+          <span className="text-[15px] font-extrabold tracking-tight">{title}</span>
+        </div>
 
         <div className="hidden md:block h-6 w-px bg-white/[0.08] shrink-0" />
 
