@@ -29,9 +29,9 @@ const STYLES = {
   },
   premium: {
     icon: SketchLogo,
-    wrap: 'bg-gradient-to-br from-[#F4D67A] to-[#B8860B] text-[#1c1403] shadow-[0_3px_14px_rgba(212,175,55,0.35)]',
-    text: 'text-[#F4D67A]',
-    ring: 'border-[#D4AF37]/45',
+    wrap: 'bg-gradient-to-br from-[#B266FF] to-[#7B3FCC] text-[#160825] shadow-[0_3px_14px_rgba(178,102,255,0.35)]',
+    text: 'text-[#B266FF]',
+    ring: 'border-[#B266FF]/45',
   },
 };
 

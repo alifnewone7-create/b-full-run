@@ -49,9 +49,9 @@ const ACCOUNT_BADGES = {
   },
   premium: {
     label: 'PREMIUM', icon: SketchLogo,
-    ring: 'border-[#D4AF37]/30 hover:border-[#D4AF37]/60',
-    wrap: 'bg-gradient-to-br from-[#F4D67A] to-[#B8860B] text-[#1c1403] shadow-[0_2px_10px_rgba(212,175,55,0.4)]',
-    text: 'text-[#F4D67A]/90',
+    ring: 'border-[#B266FF]/30 hover:border-[#B266FF]/60',
+    wrap: 'bg-gradient-to-br from-[#B266FF] to-[#7B3FCC] text-[#160825] shadow-[0_2px_10px_rgba(178,102,255,0.4)]',
+    text: 'text-[#B266FF]/90',
   },
 };
 

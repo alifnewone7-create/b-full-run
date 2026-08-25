@@ -23,7 +23,7 @@ const BADGES = {
   demo: { label: 'DEMO', icon: Flask, ring: 'border-amber-400/25 hover:border-amber-400/50', text: 'text-amber-300/90' },
   basic: { label: 'BASIC', icon: Atom, ring: 'border-sky-400/25 hover:border-sky-400/50', text: 'text-sky-300/90' },
   standard: { label: 'STANDARD', icon: Crown, ring: 'border-violet-400/25 hover:border-violet-400/50', text: 'text-violet-300/90' },
-  premium: { label: 'PREMIUM', icon: SketchLogo, ring: 'border-[#D4AF37]/30 hover:border-[#D4AF37]/60', text: 'text-[#F4D67A]/90' },
+  premium: { label: 'PREMIUM', icon: SketchLogo, ring: 'border-[#B266FF]/30 hover:border-[#B266FF]/60', text: 'text-[#B266FF]/90' },
 };
 
 /** Terminal-style chrome (logo · title · balance · left rail) for inner pages. */
