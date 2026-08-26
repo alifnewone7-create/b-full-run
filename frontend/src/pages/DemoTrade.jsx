@@ -44,9 +44,9 @@ const ACCOUNT_BADGES = {
   },
   standard: {
     label: 'STANDARD', icon: Crown,
-    ring: 'border-[#6EE7B7]/25 hover:border-[#6EE7B7]/50',
-    wrap: 'bg-gradient-to-br from-[#6EE7B7] to-[#34D399] text-[#04231a] shadow-[0_2px_10px_rgba(110,231,183,0.35)]',
-    text: 'text-[#6EE7B7]/90',
+    ring: 'border-[#69F0AE]/25 hover:border-[#69F0AE]/50',
+    wrap: 'bg-gradient-to-br from-[#69F0AE] to-[#2BD48B] text-[#04231a] shadow-[0_2px_10px_rgba(105,240,174,0.35)]',
+    text: 'text-[#69F0AE]/90',
   },
   premium: {
     label: 'PREMIUM', icon: SketchLogo,
