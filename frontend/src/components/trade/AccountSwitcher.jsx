@@ -23,9 +23,9 @@ const STYLES = {
   },
   standard: {
     icon: Crown,
-    wrap: 'bg-gradient-to-br from-rose-400 to-pink-600 text-[#2a0a12] shadow-[0_3px_14px_rgba(251,113,133,0.3)]',
-    text: 'text-rose-300',
-    ring: 'border-rose-400/40',
+    wrap: 'bg-gradient-to-br from-[#6EE7B7] to-[#34D399] text-[#04231a] shadow-[0_3px_14px_rgba(110,231,183,0.3)]',
+    text: 'text-[#6EE7B7]',
+    ring: 'border-[#6EE7B7]/40',
   },
   premium: {
     icon: SketchLogo,
