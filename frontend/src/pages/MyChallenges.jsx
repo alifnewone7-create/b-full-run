@@ -87,7 +87,7 @@ const ChallengeBlock = ({ c }) => {
             <div className="truncate text-[11.5px] text-white/40">{money(c.account_size)} funded account</div>
           </div>
           <span data-testid={`state-${c.plan}`}
-                className="shrink-0 inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.1em]"
+                className={`shrink-0 items-center gap-1.5 rounded-full px-2.5 py-1 text-[10.5px] font-bold uppercase tracking-[0.1em] ${c.state === 'running' ? 'hidden md:inline-flex' : 'inline-flex'}`}
                 style={{ color: state.color, background: `${state.color}18`, border: `1px solid ${state.color}33` }}>
             <StateIcon size={12} weight="fill" /> {state.label}
           </span>
