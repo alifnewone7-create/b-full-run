@@ -180,11 +180,11 @@ export default function MyChallenges() {
           </div>
 
           {/* Segmented tabs */}
-          <div className="mt-5 sticky top-0 z-10 -mx-4 px-4 sm:-mx-6 sm:px-6 md:-mx-8 md:px-8 pb-3 pt-1 bg-[#040D09]/92 backdrop-blur-sm">
-            <div className="flex items-center gap-1 rounded-2xl border border-white/[0.07] bg-white/[0.025] p-1">
+          <div className="mt-5 md:sticky md:top-0 z-10 -mx-4 px-4 sm:-mx-6 sm:px-6 md:-mx-8 md:px-8 pb-3 pt-1 bg-[#040D09]/92 backdrop-blur-sm">
+            <div className="flex items-center gap-1 rounded-lg border border-white/[0.07] bg-white/[0.025] p-1">
               {TABS.map(([key, label]) => (
                 <button key={key} onClick={() => setTab(key)} data-testid={`tab-${key}`}
-                        className={`flex-1 py-2 rounded-xl text-[12.5px] font-bold tracking-tight transition-colors ${
+                        className={`flex-1 py-2 rounded-md text-[12.5px] font-bold tracking-tight transition-colors ${
                           tab === key ? 'bg-[#14B877] text-[#03150d] shadow-[0_6px_18px_-8px_rgba(20,184,119,0.9)]'
                                       : 'text-white/50 hover:text-white'}`}>
                   {label}
