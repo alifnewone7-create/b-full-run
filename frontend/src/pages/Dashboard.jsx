@@ -6,6 +6,7 @@ import { CHALLENGES } from '../mock/mock';
 import BrandLogo from '../components/BrandLogo';
 
 import { API_BASE as API } from '../lib/apiBase';
+import { tradePath } from '../lib/accountRoutes';
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -44,7 +45,7 @@ export default function Dashboard() {
           <span className="font-display font-bold text-[16px]">Binary Fund <span className="bfg-green-text">Global</span></span>
         </Link>
         <div className="flex items-center gap-2.5">
-          <Link to="/demo-trade" data-testid="dashboard-trade-link"
+          <Link to={tradePath(user?.active_account)} data-testid="dashboard-trade-link"
                 className="bfg-btn-primary px-5 py-2.5 rounded-xl inline-flex items-center gap-2 text-[14px]">
             <ChartLineUp size={17} weight="bold" /> Trade
           </Link>

@@ -39,6 +39,16 @@ User language: Bengali/Banglish (respond in Banglish/Bengali).
 - P2: trade History screen for the removed mobile History slot; timezone-aware "today" window
 
 ## Notes for next agent
+- **[Aug 27 2026] Per-account trade routes**: `/demo-trade`, `/basic-trade`, `/standard-trade`, `/premium-trade`
+  (lib/accountRoutes.js: ACCOUNT_ROUTE / ROUTE_ACCOUNT / tradePath / activeTradePath). Same DemoTrade terminal
+  renders at all 4. URL drives the account — DemoTrade reconcile effect (keyed on pathname) switches the server
+  active account to match the URL if unlocked, else redirects to /demo-trade. AccountSwitcher `onSwitched`
+  navigates to the new account's URL. Login/Register/Google/Dashboard/Profile CTAs and nav "Trade"/"Chart" all
+  route to the ACTIVE account's path (persisted in localStorage `bfg_active_account`). Verified e2e.
+- **[Aug 27 2026] Standard account colour = mint #69F0AE** (MyChallenges, TerminalShell badge, AccountSwitcher,
+  DemoTrade) — distinct from demo(amber)/basic(sky)/premium(lavender).
+- **[Aug 27 2026] MyChallenges**: cards on ALL breakpoints (mobile too); tabs less-rounded + non-sticky on mobile;
+  Running-tab status pill hidden on mobile (shown on Complete/Failed and all desktop).
 - Screenshot tool forces desktop width (1920). Use testing_agent for mobile (390px) verification.
 - Trader test login: alifdesktop@gmail.com / 12345678 (see /app/memory/test_credentials.md).
 - Do not start the local backend; it lives on the user's VPS.

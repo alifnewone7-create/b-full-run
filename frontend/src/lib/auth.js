@@ -8,6 +8,8 @@
 // protected pages (/demo-trade, /dashboard, /profile) validate the token with
 // `GET /api/auth/me` on mount and redirect to /login if it is rejected.
 
+import { tradePath } from './accountRoutes';
+
 const TOKEN_KEY = 'bfg_token';
 
 export const getToken = () => {
@@ -50,7 +52,10 @@ export const isLoggedIn = () => {
  *   logged out → /registration (optionally carrying the selected plan)
  */
 export const challengePath = (plan) => {
-  if (isLoggedIn()) return '/demo-trade';
+  if (isLoggedIn()) {
+    try { return tradePath(localStorage.getItem('bfg_active_account') || 'demo'); }
+    catch { return '/demo-trade'; }
+  }
   return plan ? `/registration?plan=${plan}` : '/registration';
 };
 

@@ -8,6 +8,7 @@ import TwoFASection from '../components/TwoFASection';
 import TerminalShell from '../components/TerminalShell';
 
 import { API_BASE as API } from '../lib/apiBase';
+import { activeTradePath } from '../lib/accountRoutes';
 
 const Field = ({ label, testId, children }) => (
   <label className="block">
@@ -208,7 +209,7 @@ export default function Profile() {
               Save changes
             </button>
             <button
-              onClick={() => navigate('/demo-trade')}
+              onClick={() => navigate(activeTradePath())}
               data-testid="profile-cancel-button"
               className="rounded-xl border border-white/10 px-5 py-2.5 text-[14px] font-semibold text-white/70 hover:bg-white/[0.05]"
             >

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { io } from 'socket.io-client';
 import { Unpackr } from 'msgpackr';
@@ -16,6 +16,7 @@ import BrandLogo from '../components/BrandLogo';
 import MobileNav from '../components/MobileNav';
 
 import { API_BASE as API } from '../lib/apiBase';
+import { ROUTE_ACCOUNT, tradePath } from '../lib/accountRoutes';
 import sfx from '../lib/sfx';
 const unpackr = new Unpackr({ mapsAsObjects: true });
 const DEFAULT_TABS = ['EURUSD_OTC', 'GBPUSD_OTC', 'USDJPY_OTC', 'EURAUD_OTC'];
@@ -58,6 +59,8 @@ const ACCOUNT_BADGES = {
 
 export default function DemoTrade() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
+  const routeAccount = ROUTE_ACCOUNT[pathname] || 'demo';
   const { toast } = useToast();
   const [user, setUser] = useState(null);
   const [instruments, setInstruments] = useState([]);
@@ -175,23 +178,63 @@ export default function DemoTrade() {
 
   useEffect(() => {
     if (!token) { navigate('/login', { replace: true }); return; }
-    axios.get(`${API}/api/auth/me`, authH).then(({ data }) => {
-      setUser(data);
-      if (data.active_account) {
-        setAccountKey(data.active_account);
-        accountKeyRef.current = data.active_account;
-      }
-    }).catch(() => { localStorage.removeItem('bfg_token'); navigate('/login', { replace: true }); });
+    axios.get(`${API}/api/auth/me`, authH).then(({ data }) => setUser(data))
+      .catch(() => { localStorage.removeItem('bfg_token'); navigate('/login', { replace: true }); });
     axios.get(`${API}/api/market/instruments`).then(({ data }) => setInstruments(data));
-    axios.get(`${API}/api/wallet`, authH).then(({ data }) => {
-      setBalance(data.balance);
-      if (data.type) {
-        setAccountKey(data.type);
-        accountKeyRef.current = data.type;
-      }
-      refreshTrades(data.type || accountKeyRef.current);
-    }).catch(() => { refreshTrades(); });
   }, []); // eslint-disable-line
+
+  // Reconcile the URL (/demo-trade, /basic-trade, /standard-trade, /premium-trade)
+  // with the server's active account. The URL drives the account: if the account
+  // named in the URL is unlocked we make it active; a locked/unknown account
+  // falls back to /demo-trade.
+  useEffect(() => {
+    if (!token) return undefined;
+    let cancelled = false;
+
+    const loadFor = (key) => {
+      if (cancelled) return;
+      setAccountKey(key);
+      accountKeyRef.current = key;
+      try { localStorage.setItem('bfg_active_account', key); } catch { /* ignore */ }
+      setOpenTrades([]); setHistory([]); historyBootedRef.current = false;
+      axios.get(`${API}/api/wallet`, authH).then(({ data }) => { if (!cancelled) setBalance(data.balance); }).catch(() => {});
+      refreshTrades(key);
+    };
+
+    (async () => {
+      let accounts = [];
+      try { ({ data: accounts } = await axios.get(`${API}/api/accounts`, authH)); } catch { accounts = []; }
+      if (cancelled) return;
+
+      // Account list unavailable — fall back to whatever the wallet reports.
+      if (!accounts.length) {
+        try {
+          const { data } = await axios.get(`${API}/api/wallet`, authH);
+          loadFor(data.type || 'demo');
+        } catch { loadFor('demo'); }
+        return;
+      }
+
+      const activeKey = accounts.find((a) => a.is_active)?.key || 'demo';
+      const target = accounts.find((a) => a.key === routeAccount);
+
+      if (routeAccount === activeKey) { loadFor(activeKey); return; }
+
+      if (target && target.unlocked) {
+        try {
+          const { data } = await axios.post(`${API}/api/accounts/switch`, { account: routeAccount }, authH);
+          if (cancelled) return;
+          loadFor(data.active || routeAccount);
+        } catch { loadFor(activeKey); }
+      } else if (routeAccount !== 'demo') {
+        navigate('/demo-trade', { replace: true }); // locked/unknown → fallback; effect reruns for /demo-trade
+      } else {
+        loadFor(activeKey);
+      }
+    })();
+
+    return () => { cancelled = true; };
+  }, [pathname]); // eslint-disable-line
 
   // Socket.IO realtime feed — Quotex-style protocol with binary msgpack payloads.
   // Re-authenticating the socket is needed because the access token is short
@@ -483,16 +526,12 @@ export default function DemoTrade() {
     }
   };
 
-  const onAccountSwitched = ({ active: newKey, balance: newBal }) => {
-    setAccountKey(newKey);
-    accountKeyRef.current = newKey;
-    setBalance(newBal);
+  const onAccountSwitched = ({ active: newKey }) => {
+    // Switching is done server-side by AccountSwitcher; just move to that
+    // account's URL — the reconcile effect loads its balance and trades.
+    try { localStorage.setItem('bfg_active_account', newKey); } catch { /* ignore */ }
     setUser((u) => (u ? { ...u, active_account: newKey } : u));
-    // Wipe the previous account's trades before loading the new account's.
-    setOpenTrades([]);
-    setHistory([]);
-    historyBootedRef.current = false;
-    refreshTrades(newKey);
+    navigate(tradePath(newKey));
   };
 
   const logout = () => {
@@ -592,7 +631,7 @@ export default function DemoTrade() {
         <aside className="hidden md:flex w-[64px] shrink-0 flex-col items-center gap-1 border-r border-white/[0.07] bg-[#050f0a]/95 backdrop-blur-xl py-3">
           {SIDE_ITEMS.map(([Icon, label, path], i) => (
             <button key={label} data-testid={`side-${label.toLowerCase()}`}
-                    onClick={() => path && navigate(path)}
+                    onClick={() => { const p = label === 'Trade' ? tradePath(accountKey) : path; if (p) navigate(p); }}
                     className={`relative w-14 py-2 flex flex-col items-center gap-1 rounded-xl transition-colors ${i === 0 ? 'text-[#14b877] bg-[#14b877]/10' : 'text-white/40 hover:text-white hover:bg-white/[0.05]'}`}>
               <Icon size={20} weight="fill" />
               <span className="text-[9px] font-semibold whitespace-nowrap">{label}</span>

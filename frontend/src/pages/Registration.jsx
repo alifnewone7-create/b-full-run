@@ -7,6 +7,7 @@ import CountrySelect from '../components/CountrySelect';
 import { useToast } from '../hooks/use-toast';
 import api from '../lib/api';
 import { isLoggedIn } from '../lib/auth';
+import { tradePath, activeTradePath } from '../lib/accountRoutes';
 
 const inputCls =
   'w-full bg-white/[0.04] border border-white/12 rounded-xl pl-11 pr-4 py-3 text-[15px] text-white placeholder:text-white/35 focus:outline-none focus:border-[#14b877] focus:ring-2 focus:ring-[#14b877]/25 transition';
@@ -53,7 +54,7 @@ const Registration = () => {
 
   // Already signed in? Skip the auth screens entirely and go to the terminal.
   useEffect(() => {
-    if (isLoggedIn()) navigate('/demo-trade', { replace: true });
+    if (isLoggedIn()) navigate(activeTradePath(), { replace: true });
   }, [navigate]);
 
   const setField = (name, value) => {
@@ -96,8 +97,10 @@ const Registration = () => {
       localStorage.setItem('bfg_token', data.token);
       localStorage.setItem('bfg_user', JSON.stringify(data.user));
       if (plan) localStorage.setItem('bfg_selected_plan', plan);
+      const acct = data.user?.active_account || 'demo';
+      try { localStorage.setItem('bfg_active_account', acct); } catch { /* ignore */ }
       toast({ title: 'Account created!', description: `Welcome, ${data.user.email}` });
-      navigate('/demo-trade', { replace: true });
+      navigate(tradePath(acct), { replace: true });
     } catch (err) {
       const status = err?.response?.status;
       const msg = serverDetailToString(err?.response?.data?.detail) || err.message;

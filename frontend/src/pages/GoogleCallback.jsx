@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { CircleNotch, WarningCircle, Copy, Check } from '@phosphor-icons/react';
 import api from '../lib/api';
+import { tradePath } from '../lib/accountRoutes';
 
 export default function GoogleCallback() {
   const navigate = useNavigate();
@@ -32,7 +33,9 @@ export default function GoogleCallback() {
       localStorage.setItem('bfg_token', data.token);
       localStorage.setItem('bfg_user', JSON.stringify(data.user));
       localStorage.removeItem('bfg_selected_plan');
-      navigate('/demo-trade', { replace: true });
+      const acct = data.user?.active_account || 'demo';
+      try { localStorage.setItem('bfg_active_account', acct); } catch { /* ignore */ }
+      navigate(tradePath(acct), { replace: true });
     }).catch((err) => {
       const detail = err?.response?.data?.detail || '';
       if (typeof detail === 'string' && detail.toLowerCase().includes('redirect_uri_mismatch')) {

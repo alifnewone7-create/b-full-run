@@ -39,6 +39,9 @@ function AppRoutes() {
           <Route path="/auth/google" element={<GoogleCallback />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/demo-trade" element={<DemoTrade />} />
+          <Route path="/basic-trade" element={<DemoTrade />} />
+          <Route path="/standard-trade" element={<DemoTrade />} />
+          <Route path="/premium-trade" element={<DemoTrade />} />
           <Route path="/challenges" element={<ChallengesPage />} />
           <Route path="/my-challenges" element={<MyChallenges />} />
           <Route path="/profile" element={<Profile />} />

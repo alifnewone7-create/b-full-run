@@ -7,6 +7,7 @@ import TwoStepVerify from '../components/TwoStepVerify';
 import { useToast } from '../hooks/use-toast';
 import api from '../lib/api';
 import { isLoggedIn } from '../lib/auth';
+import { tradePath, activeTradePath } from '../lib/accountRoutes';
 
 const inputCls = 'w-full bg-white/[0.04] border border-white/12 rounded-xl pl-11 pr-4 py-3 text-[15px] text-white placeholder:text-white/35 focus:outline-none focus:border-[#14b877] focus:ring-2 focus:ring-[#14b877]/25 transition';
 const inputErrCls = 'w-full bg-white/[0.04] border border-red-500/70 rounded-xl pl-11 pr-4 py-3 text-[15px] text-white placeholder:text-white/35 focus:outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/25 transition';
@@ -39,7 +40,7 @@ const Login = () => {
 
   // Already signed in? Skip the auth screens entirely and go to the terminal.
   useEffect(() => {
-    if (isLoggedIn()) navigate('/demo-trade', { replace: true });
+    if (isLoggedIn()) navigate(activeTradePath(), { replace: true });
   }, [navigate]);
 
   const setField = (name, value) => {
@@ -50,8 +51,10 @@ const Login = () => {
   const finishLogin = (data) => {
     localStorage.setItem('bfg_token', data.token);
     localStorage.setItem('bfg_user', JSON.stringify(data.user));
+    const acct = data.user?.active_account || 'demo';
+    try { localStorage.setItem('bfg_active_account', acct); } catch { /* ignore */ }
     toast({ title: 'Welcome back!', description: `Signed in as ${data.user.email}` });
-    navigate('/demo-trade', { replace: true });
+    navigate(tradePath(acct), { replace: true });
   };
 
   const submit = async (e) => {

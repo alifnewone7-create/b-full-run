@@ -9,6 +9,7 @@ import BrandLogo from './BrandLogo';
 import MobileNav from './MobileNav';
 import AccountSwitcher from './trade/AccountSwitcher';
 import { API_BASE as API } from '../lib/apiBase';
+import { tradePath } from '../lib/accountRoutes';
 import { useToast } from '../hooks/use-toast';
 
 const SIDE_ITEMS = [
@@ -41,11 +42,11 @@ export const TerminalShell = ({ title, icon: TitleIcon = Trophy, children }) => 
     const authH = { headers: { Authorization: `Bearer ${localStorage.getItem('bfg_token')}` } };
     axios.get(`${API}/api/auth/me`, authH).then(({ data }) => {
       setUser(data);
-      setAccountKey(data.active_account || 'demo');
+      if (data.active_account) { setAccountKey(data.active_account); try { localStorage.setItem('bfg_active_account', data.active_account); } catch { /* ignore */ } }
     }).catch(() => {});
     axios.get(`${API}/api/wallet`, authH).then(({ data }) => {
       setBalance(data.balance);
-      if (data.type) setAccountKey(data.type);
+      if (data.type) { setAccountKey(data.type); try { localStorage.setItem('bfg_active_account', data.type); } catch { /* ignore */ } }
     }).catch(() => {});
   };
   useEffect(loadAccount, []); // eslint-disable-line react-hooks/exhaustive-deps
@@ -119,7 +120,7 @@ export const TerminalShell = ({ title, icon: TitleIcon = Trophy, children }) => 
           {SIDE_ITEMS.map(([Icon, label, path]) => {
             const on = path === pathname;
             return (
-              <button key={label} onClick={() => path && navigate(path)} title={label}
+              <button key={label} onClick={() => { const p = label === 'Trade' ? tradePath(accountKey) : path; if (p) navigate(p); }} title={label}
                       data-testid={`side-${label.toLowerCase().replace(/\s+/g, '-')}`}
                       className={`relative w-14 py-2 flex flex-col items-center gap-1 rounded-xl transition-colors ${
                         on ? 'text-[#14b877] bg-[#14b877]/10' : 'text-white/40 hover:text-white hover:bg-white/[0.05]'}`}>
