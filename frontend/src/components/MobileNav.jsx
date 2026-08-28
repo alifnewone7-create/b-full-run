@@ -36,7 +36,7 @@ export const MobileNav = () => {
                   data-testid={`mobile-nav-${label.toLowerCase().replace(/\s+/g, '-')}`}
                   className={`flex-1 py-2 flex flex-col items-center justify-center gap-0.5 transition-colors ${
                     on ? 'text-[#14b877]' : 'text-white/40 active:text-white'}`}>
-            <Icon size={20} weight="duotone" />
+            <Icon size={20} weight="fill" />
             <span className="text-[9px] font-semibold leading-none">{label}</span>
           </button>
         );
