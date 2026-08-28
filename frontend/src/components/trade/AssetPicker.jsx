@@ -31,7 +31,7 @@ export default function AssetPicker({ open, onClose, instruments, quotes, onSele
         <div className="flex items-center gap-3 px-4 pt-2 pb-3">
           <div className="relative flex-1">
             <MagnifyingGlass size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
-            <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search assets…" data-testid="asset-picker-search"
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search assets…" data-testid="asset-picker-search"
                    className="w-full bg-black/30 border border-white/10 rounded-xl pl-9 pr-3 py-2.5 text-[14px] text-white placeholder:text-white/35 focus:outline-none focus:border-[#14b877]/60 focus:ring-2 focus:ring-[#14b877]/15 transition-colors" />
           </div>
         </div>
