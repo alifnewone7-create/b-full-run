@@ -34,10 +34,9 @@ export const MobileNav = () => {
         return (
           <button key={label} onClick={() => go(path)} aria-label={label}
                   data-testid={`mobile-nav-${label.toLowerCase().replace(/\s+/g, '-')}`}
-                  className={`flex-1 py-2 flex flex-col items-center justify-center gap-0.5 transition-colors ${
+                  className={`flex-1 py-3 flex items-center justify-center transition-colors ${
                     on ? 'text-[#14b877]' : 'text-white/40 active:text-white'}`}>
-            <Icon size={20} weight="fill" />
-            <span className="text-[9px] font-semibold leading-none">{label}</span>
+            <Icon size={24} weight="fill" />
           </button>
         );
       })}
