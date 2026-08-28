@@ -936,7 +936,7 @@ export default function TradeChart({ symbol, digits, lastTick, openTrades, hover
             const ss = String(left % 60).padStart(2, '0');
             const txt = `${mm}:${ss}`;
             if (cd.textContent !== txt) cd.textContent = txt;
-            if (x !== null && x !== undefined) {
+            if (!browsingRef.current && x !== null && x !== undefined) {
               const paneW = ts.width() || 0;
               const w = measure(cd, 40).w || 40;
               // Sits detached from the running candle — ~1 bar to its right,
