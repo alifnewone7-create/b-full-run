@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { io } from 'socket.io-client';
 import { Unpackr } from 'msgpackr';
-import { Plus, X, SignOut, ChartPieSlice, ClockCounterClockwise, Question, GearSix, Download, User as UserIcon, CaretDown, ChartLineUp, Flask, Atom, Crown, SketchLogo, Trophy, Medal } from '@phosphor-icons/react';
+import { Plus, X, SignOut, ChartPieSlice, ClockCounterClockwise, Question, GearSix, Download, User as UserIcon, CaretDown, CaretRight, ChartLineUp, Flask, Atom, Crown, SketchLogo, Trophy, Medal } from '@phosphor-icons/react';
 import { useToast } from '../hooks/use-toast';
 import { AssetIcon } from '../components/trade/AssetIcon';
 import AssetPicker from '../components/trade/AssetPicker';
@@ -102,6 +102,25 @@ export default function DemoTrade() {
   // fallback from showing the same settlement twice.
   const shownResultsRef = useRef(new Set());
   const historyBootedRef = useRef(false);
+
+  // Desktop market-tab horizontal scroll — show a right-arrow while more tabs
+  // remain off to the right (they pack tightly and overflow into a scroller).
+  const tabsScrollRef = useRef(null);
+  const [tabsAtEnd, setTabsAtEnd] = useState(true);
+  const updateTabsScroll = useCallback(() => {
+    const el = tabsScrollRef.current;
+    if (!el) return;
+    setTabsAtEnd(el.scrollLeft + el.clientWidth >= el.scrollWidth - 2);
+  }, []);
+  const scrollTabsRight = () => {
+    const el = tabsScrollRef.current;
+    if (el) el.scrollBy({ left: 240, behavior: 'smooth' });
+  };
+  useEffect(() => {
+    updateTabsScroll();
+    window.addEventListener('resize', updateTabsScroll);
+    return () => window.removeEventListener('resize', updateTabsScroll);
+  }, [tabs, active, user, instruments.length, updateTabsScroll]);
 
   const pushResult = useCallback((trade) => {
     if (!trade || !trade.id || shownResultsRef.current.has(trade.id)) return;
@@ -553,7 +572,7 @@ export default function DemoTrade() {
     const tabHasOpenTrades = openTrades.some((t) => t.symbol === sym);
     return (
       <div key={sym} onClick={() => requestSwitchActive(sym)} data-testid={`asset-tab-${sym}`}
-           className={`group relative shrink-0 flex items-center rounded-xl cursor-pointer border transition-colors gap-2 pl-2.5 pr-1.5 py-1.5 ${isActive
+           className={`group relative shrink-0 flex items-center rounded-md cursor-pointer border transition-colors gap-1.5 pl-2 pr-1 py-1.5 ${isActive
              ? 'bg-gradient-to-b from-[#14b877]/[0.14] to-[#14b877]/[0.03] border-[#14b877]/40 shadow-[0_0_18px_rgba(20,184,119,0.1)]'
              : 'border-white/[0.08] hover:bg-white/[0.04] hover:border-white/20'}`}>
         <AssetIcon icon={ins.icon} size={20} />
@@ -607,12 +626,21 @@ export default function DemoTrade() {
         </button>
 
         {/* Asset tabs — desktop inline */}
-        <div className="hidden md:flex flex-1 items-center gap-1.5 overflow-x-auto scrollbar-none min-w-0 py-1">
+        <div className="hidden md:flex flex-1 items-center gap-1.5 min-w-0 py-1">
           <button onClick={() => setPickerOpen(true)} data-testid="add-asset-button"
-                  className="shrink-0 h-9 w-9 flex items-center justify-center rounded-xl border border-dashed border-white/20 text-white/45 hover:text-[#14b877] hover:border-[#14b877]/50 transition-colors">
+                  className="shrink-0 h-9 w-9 flex items-center justify-center rounded-md border border-dashed border-white/20 text-white/45 hover:text-[#14b877] hover:border-[#14b877]/50 transition-colors">
             <Plus size={16} weight="bold" />
           </button>
-          {tabs.map((sym) => renderTab(sym))}
+          <div ref={tabsScrollRef} onScroll={updateTabsScroll}
+               className="flex items-center gap-0.5 overflow-x-auto scrollbar-none min-w-0 flex-1">
+            {tabs.map((sym) => renderTab(sym))}
+          </div>
+          {!tabsAtEnd && (
+            <button onClick={scrollTabsRight} data-testid="tabs-scroll-right"
+                    className="shrink-0 h-9 w-8 flex items-center justify-center rounded-md border border-white/[0.1] bg-[#0a1a12]/80 text-white/55 hover:text-white hover:border-white/30 transition-colors">
+              <CaretRight size={16} weight="bold" />
+            </button>
+          )}
         </div>
         <div className="flex-1 md:hidden" />
 
