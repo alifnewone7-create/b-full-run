@@ -587,11 +587,11 @@ export default function DemoTrade() {
 
         {/* Asset tabs — desktop inline */}
         <div className="hidden md:flex flex-1 items-center gap-1.5 overflow-x-auto scrollbar-none min-w-0 py-1">
-          {tabs.map((sym) => renderTab(sym))}
           <button onClick={() => setPickerOpen(true)} data-testid="add-asset-button"
                   className="shrink-0 h-9 w-9 flex items-center justify-center rounded-xl border border-dashed border-white/20 text-white/45 hover:text-[#14b877] hover:border-[#14b877]/50 transition-colors">
             <Plus size={16} weight="bold" />
           </button>
+          {tabs.map((sym) => renderTab(sym))}
         </div>
         <div className="flex-1 md:hidden" />
 
