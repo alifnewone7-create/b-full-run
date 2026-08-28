@@ -61,20 +61,45 @@ export const TerminalShell = ({ title, icon: TitleIcon = Trophy, children }) => 
   const initial = (user?.nickname || user?.full_name || user?.email || 'B')[0]?.toUpperCase() || 'B';
 
   return (
-    <div className="h-[100dvh] flex flex-col text-white bg-[#040D09] overflow-hidden" data-testid="terminal-shell">
-      {/* Header — same structure as the trade terminal */}
-      <header className="shrink-0 flex items-center gap-2 sm:gap-3 px-2.5 sm:px-4 h-[52px] border-b border-white/[0.05] md:border-white/[0.07] bg-transparent md:bg-[#050f0a]/95 md:backdrop-blur-xl">
-        <Link to="/" className="hidden md:flex shrink-0 items-center gap-2" data-testid="shell-logo-link">
+    <div className="h-[100dvh] flex text-white bg-[#040D09] overflow-hidden" data-testid="terminal-shell">
+      {/* Desktop left rail — logo + nav buttons in one bordered column (same as trade page) */}
+      <aside data-testid="shell-side-rail"
+             className="hidden md:flex w-[64px] shrink-0 flex-col items-center border-r border-white/[0.07] bg-[#050f0a]/95 backdrop-blur-xl">
+        <Link to="/" data-testid="shell-logo-link"
+              className="h-[52px] w-full flex items-center justify-center border-b border-white/[0.07]">
           <BrandLogo className="h-7 w-auto object-contain" />
         </Link>
+        <div className="w-full flex-1 flex flex-col items-center gap-1 py-3">
+          {SIDE_ITEMS.map(([Icon, label, path]) => {
+            const on = path === pathname;
+            return (
+              <button key={label} onClick={() => { const p = label === 'Trade' ? tradePath(accountKey) : path; if (p) navigate(p); }} title={label}
+                      data-testid={`side-${label.toLowerCase().replace(/\s+/g, '-')}`}
+                      className={`relative w-14 py-2 flex flex-col items-center gap-1 rounded-xl transition-colors ${
+                        on ? 'text-[#14b877] bg-[#14b877]/10' : 'text-white/40 hover:text-white hover:bg-white/[0.05]'}`}>
+                <Icon size={20} weight="fill" />
+                <span className="text-[9px] font-semibold whitespace-nowrap">{label}</span>
+              </button>
+            );
+          })}
+          <div className="flex-1" />
+          <button onClick={logout} data-testid="shell-logout-btn"
+                  className="w-14 py-2 flex flex-col items-center gap-1 rounded-xl text-white/40 hover:text-red-400 hover:bg-red-400/[0.06] transition-colors">
+            <SignOut size={20} weight="duotone" />
+            <span className="text-[9px] font-semibold whitespace-nowrap">Logout</span>
+          </button>
+        </div>
+      </aside>
 
+      {/* Right column: header + page content */}
+      <div className="flex-1 min-w-0 flex flex-col">
+      {/* Header — same structure as the trade terminal */}
+      <header className="shrink-0 flex items-center gap-2 sm:gap-3 px-2.5 sm:px-4 h-[52px] border-b border-white/[0.05] md:border-white/[0.07] bg-transparent md:bg-[#050f0a]/95 md:backdrop-blur-xl">
         {/* Mobile — page name */}
         <div className="md:hidden shrink-0 flex items-center gap-2" data-testid="shell-mobile-title">
           <TitleIcon size={19} weight="fill" className="text-[#14b877]" />
           <span className="text-[15px] font-extrabold tracking-tight">{title}</span>
         </div>
-
-        <div className="hidden md:block h-6 w-px bg-white/[0.08] shrink-0" />
 
         {/* Page name — sits exactly where the market tabs are on the trade page */}
         <div className="hidden md:flex flex-1 items-center gap-1.5 min-w-0 py-1">
@@ -115,34 +140,13 @@ export const TerminalShell = ({ title, icon: TitleIcon = Trophy, children }) => 
 
       {/* Body */}
       <div className="flex-1 flex min-h-0 overflow-hidden">
-        <aside data-testid="shell-side-rail"
-               className="hidden md:flex w-[64px] shrink-0 flex-col items-center gap-1 border-r border-white/[0.07] bg-[#050f0a]/95 backdrop-blur-xl py-3">
-          {SIDE_ITEMS.map(([Icon, label, path]) => {
-            const on = path === pathname;
-            return (
-              <button key={label} onClick={() => { const p = label === 'Trade' ? tradePath(accountKey) : path; if (p) navigate(p); }} title={label}
-                      data-testid={`side-${label.toLowerCase().replace(/\s+/g, '-')}`}
-                      className={`relative w-14 py-2 flex flex-col items-center gap-1 rounded-xl transition-colors ${
-                        on ? 'text-[#14b877] bg-[#14b877]/10' : 'text-white/40 hover:text-white hover:bg-white/[0.05]'}`}>
-                <Icon size={20} weight="fill" />
-                <span className="text-[9px] font-semibold whitespace-nowrap">{label}</span>
-              </button>
-            );
-          })}
-          <div className="flex-1" />
-          <button onClick={logout} data-testid="shell-logout-btn"
-                  className="w-14 py-2 flex flex-col items-center gap-1 rounded-xl text-white/40 hover:text-red-400 hover:bg-red-400/[0.06] transition-colors">
-            <SignOut size={20} weight="duotone" />
-            <span className="text-[9px] font-semibold whitespace-nowrap">Logout</span>
-          </button>
-        </aside>
-
         <main className="flex-1 min-w-0 min-h-0 overflow-y-auto" data-testid="shell-main">
           {children}
         </main>
       </div>
 
       <MobileNav />
+      </div>
 
       <AccountSwitcher open={accountsOpen} onClose={() => setAccountsOpen(false)} onSwitched={loadAccount} />
     </div>
