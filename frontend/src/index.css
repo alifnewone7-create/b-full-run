@@ -309,3 +309,12 @@ h1, h2, h3, h4, h5, .font-display {
   to   { opacity: 1; transform: translate(-100%, -50%) scale(1); }
 }
 
+
+/* ── Uniform button corners ─────────────────────────────────────────────
+   Every button across the app uses the same rounded-rectangle corner (8px),
+   matching the Deposit / Withdrawal reference. Circular icon buttons (avatars,
+   round toggles) keep their shape via .rounded-full. This rule is unlayered so
+   it wins over Tailwind's rounded-* utilities without !important. */
+button:not(.rounded-full):not([class*="rounded-full"]) {
+  border-radius: 8px;
+}
