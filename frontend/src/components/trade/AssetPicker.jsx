@@ -38,7 +38,7 @@ export default function AssetPicker({ open, onClose, instruments, quotes, onSele
         <div className="flex gap-1.5 px-4 pb-3 overflow-x-auto scrollbar-none">
           {CATS.map(([id, label]) => (
             <button key={id} onClick={() => { setCat(id); setQ(''); }} data-testid={`asset-cat-${id}`}
-                    className={`px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold whitespace-nowrap transition-colors ${cat === id && !q ? 'bg-[#14b877] text-[#03150d]' : 'bg-white/[0.05] text-white/60 hover:text-white hover:bg-white/[0.09]'}`}>
+                    className={`px-3.5 py-1.5 rounded-lg text-[12.5px] font-semibold whitespace-nowrap border transition-colors ${cat === id && !q ? 'bg-[#14b877] text-[#03150d] border-[#14b877]' : 'bg-white/[0.07] text-white/80 border-white/15 hover:text-white hover:bg-white/[0.12] hover:border-white/25'}`}>
               {label}
             </button>
           ))}
